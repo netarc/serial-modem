@@ -13,7 +13,7 @@ How to Install the library
 ==========================
 
 1. Clone the latest source or download the latest zip.
-2. Open the Arduino IDE, click `Sketch->Import Library...->Add Library...`, then navigate to `m2x-arduino-simcom/SerialModem`
+2. Open the Arduino IDE, click `Sketch->Import Library...->Add Library...`, then navigate to `SerialModem/SerialModem`
 3. Now you can find SerialModem examples under `File->Examples->SerialModem`
 3. Enjoy coding!
 
