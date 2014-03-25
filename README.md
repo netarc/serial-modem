@@ -31,14 +31,14 @@ Then simply start the modem and point it to the correct APN which is typically d
 ```
 void setup() {
   ...
-  SerialModem.setHardwareInterface(Modem_SIM5218);
+  SerialModem.setHardwareInterface(INTERFACE_SIM5218);
   SerialModem.begin(&Serial, 115200);
   while (!SerialModem.ready()) {
     Serial.println("waiting for modem ready");
     delay(2000);
   }
 
-  while (SerialModem.getNetworkStatus() < Modem::ROAMING) {
+  while (SerialModem.getNetworkStatus() < NETWORK_STATUS_ROAMING) {
     Serial.println("waiting for network registration");
     delay(2000);
   }

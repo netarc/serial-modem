@@ -1,0 +1,21 @@
+#######################################
+# Syntax Coloring Map For SerialModem
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+SerialModem        KEYWORD1
+SerialModemClient  KEYWORD1
+SerialModemGPS     KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+Modem_MTSMC_H5 0 LITERAL1
+Modem_SIM5218  1 LITERAL1
