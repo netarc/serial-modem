@@ -7,6 +7,8 @@ bool sm_interface_attention() {
 }
 
 sm_network_status sm_interface_network_status() {
+  // __PROGMEM_STR tokenMatch = PROGMEM_STR(" ,\n\r");
+
   char *response = SerialModem.sendCommand(PROGMEM_STR("AT+CREG?"));
 
   if (!response || !strstr(response, "OK"))

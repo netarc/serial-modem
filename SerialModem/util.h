@@ -41,38 +41,25 @@ namespace Modem {
   };
 
   /**
-   * CircularGapBuffer is a two mode buffer helper tool to aid
-   * with getting the most out of limited SRAM via a shared buffer.
-   * 1] Gap mode is a simple left/right shared buffer splitter primarily used when PROGMEM strings are being used
-   * 2] Circular mode is when we are reading data from the modem and parsing for responses
+   * CircularBuffer is used when we are reading data from the modem and parsing for responses
    */
-  class CircularGapBuffer {
+  class CircularBuffer {
   public:
-    CircularGapBuffer(char *ref, uint16_t size);
-    ~CircularGapBuffer();
+    CircularBuffer(char *ref, uint16_t size);
+    ~CircularBuffer();
 
-    // Gap Mode
-    uint16_t sizeAvailableForLeft();
-    inline char * left() { return _data; }
-    char * reserveRight(uint16_t size);
-
-    // Circular Mode
     void appendCircular(char ch);
     char * strstr(char *str);
+    char * resetLeft();
 
   private:
-    void beginGap();
-    void beginCircular();
-
-    uint8_t _mode;
     char *_data;
     char *_ptrStart;
     char *_ptrEnd;
-    uint16_t _gapRight;
     uint16_t _size;
   };
 }
 
-extern Modem::CircularGapBuffer *g_gapBuffer;
+extern Modem::CircularBuffer *g_circularBuffer;
 
 #endif

@@ -5,10 +5,10 @@ using namespace Modem;
 
 
 SerialModemClass SerialModem;
-// The CircularGapBuffer is created with a reference to the shared buffer so compile
+// The CircularBuffer is created with a reference to the shared buffer so compile
 // time has an accurate SRAM usage calculation vs allocating it at run-time
 char g_sharedBuffer[SERIAL_MODEM_SHARED_BUFFER];
-CircularGapBuffer *g_gapBuffer = new CircularGapBuffer(g_sharedBuffer, SERIAL_MODEM_SHARED_BUFFER);
+CircularBuffer *g_circularBuffer = new CircularBuffer(g_sharedBuffer, SERIAL_MODEM_SHARED_BUFFER);
 
 void sm_hardware_power_toggle(uint8_t pin) {
   if (pin == -1)
@@ -176,7 +176,7 @@ char * SerialModemClass::sendCommand(const char *cmd, uint32_t timeout, char esc
       char ch = _hardware_serial->read();
 
       if (ch == ESC_CR || (ch >= 32 && ch <= 126)) {
-        g_gapBuffer->appendCircular(ch);
+        g_circularBuffer->appendCircular(ch);
         bytesRead++;
       }
     }
@@ -184,8 +184,8 @@ char * SerialModemClass::sendCommand(const char *cmd, uint32_t timeout, char esc
     *ptr_write = 0;
 
     char *responseMatch = NULL;
-    // if (((responseMatch = g_gapBuffer->strstr(ptr_last_line, "OK\x0D")) && *(responseMatch+2) == ESC_CR) ||
-    //     ((responseMatch = g_gapBuffer->strstr(ptr_last_line, "ERROR\x0D")) && *(responseMatch+5) == ESC_CR) ||
+    // if (((responseMatch = g_circularBuffer->strstr(ptr_last_line, "OK\x0D")) && *(responseMatch+2) == ESC_CR) ||
+    //     ((responseMatch = g_circularBuffer->strstr(ptr_last_line, "ERROR\x0D")) && *(responseMatch+5) == ESC_CR) ||
     //     (responseCheck && (responseMatch = strstr(ptr_last_line, responseCheck)) && *(responseMatch+strlen(responseCheck)) == ESC_CR)) {
     //   DLog(">> %s", g_sharedBuffer);
     //   return g_sharedBuffer;
