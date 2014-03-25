@@ -15,7 +15,8 @@
 
 #define SMSerialInterfaceClass void *
 
-// Embedding and accessing strings from program memory vs sram
+// PROGMEM strings support
+#define PROGMEM_PTR void *
 #define PROGMEM_STR(x) x
 
 #include "platforms/_arduino.h"

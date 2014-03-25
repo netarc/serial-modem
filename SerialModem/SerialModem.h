@@ -5,8 +5,8 @@
 
 #include <inttypes.h>
 
-#include "util.h"
 #include "platforms/platform.h"
+#include "util.h"
 #include "Interface.h"
 #include "debug.h"
 

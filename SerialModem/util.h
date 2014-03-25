@@ -10,8 +10,6 @@
 #endif
 
 namespace Modem {
-
-
   static const int SUCCESS = 1;
   static const int NO_RESPONSE = 0;
   static const int ERROR = -1;
@@ -27,6 +25,20 @@ namespace Modem {
   // Utility method that does a sprintf and stores the result in a shared buffer
   char *cgb_sprintf(const char *format, ...);
 
+  /**
+   * __PROGMEM_STR is a string wrapper used for PROGMEM strings to bring them into the SRAM heap temporarily
+   */
+  class __PROGMEM_STR {
+  public:
+    __PROGMEM_STR(PROGMEM_PTR ptr);
+    ~__PROGMEM_STR(void);
+
+    operator const char*() { return _buffer; }
+    operator char*() { return _buffer; }
+
+  protected:
+    char *_buffer;
+  };
 
   /**
    * CircularGapBuffer is a two mode buffer helper tool to aid

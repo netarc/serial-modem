@@ -33,11 +33,10 @@
 
   #define SMSerialInterfaceClass HardwareSerial *
 
+  // Make use of PROGMEM strings
   #ifdef PGM_P
-    #define PROGMEM_STR(str) progmem_read_str((PGM_P)F(str))
-    static inline char * progmem_read_str(PGM_P p) {
-      return strcpy_P(g_gapBuffer->reserveRight(strlen_P(p)), p);
-    }
+    #define PROGMEM_PTR PGM_P
+    #define PROGMEM_STR(str) Modem::__PROGMEM_STR((PGM_P)F(str))
   #endif
 
   static int _hw_printf(const char *format, ...) {

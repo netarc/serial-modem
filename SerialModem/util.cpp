@@ -1,7 +1,31 @@
 #include "SerialModem.h"
 
 
+  #ifdef PGM_P
+// #error "wut"
+    // #define PROGMEM_STR(str) progmem_read_str((PGM_P)F(str))
+    // static inline char * progmem_read_str(PGM_P p) {
+    //   return strcpy_P(g_gapBuffer->reserveRight(strlen_P(p)), p);
+    // }
+  #endif
+
 namespace Modem {
+
+
+__PROGMEM_STR::__PROGMEM_STR(PROGMEM_PTR ptr) {
+  #ifdef PGM_P
+    _buffer = (char *)malloc(strlen_P(ptr) + 1);
+    strcpy_P(_buffer, ptr);
+  #else
+    #error "unhandled PROGMEM_PTR"
+  #endif
+}
+
+__PROGMEM_STR::~__PROGMEM_STR() {
+  if (_buffer)
+    free(_buffer);
+}
+
 
   char *cgb_sprintf(const char *format, ...) {
     va_list args;
