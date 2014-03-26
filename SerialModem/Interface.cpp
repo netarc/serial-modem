@@ -7,17 +7,17 @@ bool sm_interface_attention() {
 }
 
 sm_network_status sm_interface_network_status() {
-  // __PROGMEM_STR tokenMatch = PROGMEM_STR(" ,\n\r");
+  __PROGMEM_STR tokenMatch = PROGMEM_STR(" ,\n\r");
 
   char *response = SerialModem.sendCommand(PROGMEM_STR("AT+CREG?"));
 
-  if (!response || !strstr(response, "OK"))
+  if (!response || !strstr(response, PROGMEM_STR("OK")))
     return NETWORK_STATUS_UNKNOWN;
 
-  char *r = strstr(response, "+CREG:");
-  char *tkn = strtok(r, " ,\n\r");
-  tkn = strtok(NULL, " ,\n\r");
-  tkn = strtok(NULL, " ,\n\r");
+  char *r = strstr(response, PROGMEM_STR("+CREG:"));
+  char *tkn = strtok(r, tokenMatch);
+  tkn = strtok(NULL, tokenMatch);
+  tkn = strtok(NULL, tokenMatch);
   uint8_t status = atoi(tkn);
   switch (status) {
     case 0: return NETWORK_STATUS_NOT_REGISTERED;
