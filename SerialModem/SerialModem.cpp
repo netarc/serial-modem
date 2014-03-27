@@ -159,37 +159,37 @@ char * SerialModemClass::sendCommand(const char *cmd, uint32_t timeout, char esc
   if (esc)
     _hardware_serial->write(esc);
 
+  g_circularBuffer->resetLeft();
+
   uint8_t pos=0;
-  char *ptr_write = &g_sharedBuffer[0];
-  char *ptr_last_line = ptr_write;
-  char *ptr_end = ptr_write + SERIAL_MODEM_SHARED_BUFFER - 1;
+  // char *ptr_write = &g_sharedBuffer[0];
+  // char *ptr_last_line = ptr_write;
+  // char *ptr_end = ptr_write + SERIAL_MODEM_SHARED_BUFFER - 1;
 
   uint32_t started_at = plt_millis();
   bool started=false;
-  bool recv_line=false;
+  // bool recv_line=false;
   do {
     plt_delay(10);
 
-    // Since our buffer is circular read only a "page" at a time at most
+    // Since our buffer is circular, read only a "page" at a time at most
     uint16_t bytesRead = 0;
-    while (_hardware_serial->available() || bytesRead > SERIAL_MODEM_SHARED_BUFFER) {
+    while (_hardware_serial->available() && bytesRead < SERIAL_MODEM_SHARED_BUFFER) {
       char ch = _hardware_serial->read();
-
-      if (ch == ESC_CR || (ch >= 32 && ch <= 126)) {
+      if (ch == ESC_CR ||
+          ch == ESC_NL ||
+          (ch >= 32 && ch <= 126) ) {
         g_circularBuffer->appendCircular(ch);
         bytesRead++;
       }
     }
-    // always ensure string integrity
-    *ptr_write = 0;
 
     char *responseMatch = NULL;
-    // if (((responseMatch = g_circularBuffer->strstr(ptr_last_line, "OK\x0D")) && *(responseMatch+2) == ESC_CR) ||
-    //     ((responseMatch = g_circularBuffer->strstr(ptr_last_line, "ERROR\x0D")) && *(responseMatch+5) == ESC_CR) ||
-    //     (responseCheck && (responseMatch = strstr(ptr_last_line, responseCheck)) && *(responseMatch+strlen(responseCheck)) == ESC_CR)) {
-    //   DLog(">> %s", g_sharedBuffer);
-    //   return g_sharedBuffer;
-    // }
+    if ( (responseMatch = g_circularBuffer->substring("OK", ESC_CR)) ||
+         (responseMatch = g_circularBuffer->substring("ERROR", ESC_CR)) ||
+         (responseCheck && (responseMatch = g_circularBuffer->substring(responseCheck, ESC_CR))) ) {
+      return g_circularBuffer->realignLeft();
+    }
 
     // if (!started) {
     //   char *match = strstr(g_sharedBuffer, cmd);
@@ -215,7 +215,7 @@ char * SerialModemClass::sendCommand(const char *cmd, uint32_t timeout, char esc
     // }
   } while((plt_millis() - started_at) < timeout);
   DLog(" * sendCommand timeout\n");
-  DLog(">> %s\n", g_sharedBuffer);
+  DLog(">> %s\n", g_circularBuffer->realignLeft());
   return NULL;
 }
 

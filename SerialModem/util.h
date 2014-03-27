@@ -49,14 +49,15 @@ namespace Modem {
     ~CircularBuffer();
 
     void appendCircular(char ch);
-    char * strstr(char *str);
+    char * substring(char *substr, char escape=0);
+    char * realignLeft();
     char * resetLeft();
 
-  private:
+  // private:
     char *_data;
+    char *_dataEnd;
     char *_ptrStart;
     char *_ptrEnd;
-    uint16_t _size;
   };
 }
 

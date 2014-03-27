@@ -39,40 +39,40 @@ bool sm_interface_set_apn(char *apn) {
   const char *cmd;
   switch(SerialModem._hardware_interface) {
     case INTERFACE_MTSMC_H5:
-      cmd = PROGMEM_STR("AT+CGDCONT=1,\"IP\",\"APN\",\"%s\"");
+      cmd = cgb_sprintf(PROGMEM_STR("AT+CGDCONT=1,\"IP\",\"APN\",\"%s\",0,0"), apn);
       break;
     case INTERFACE_SIM5218:
-      cmd = PROGMEM_STR("AT+CGSOCKCONT=1,\"IP\",\"%s\"");
+      cmd = cgb_sprintf(PROGMEM_STR("AT+CGSOCKCONT=1,\"IP\",\"%s\""), apn);
       break;
     default:
       return false;
   }
-  return SerialModem.sendBasicCommand(cgb_sprintf(cmd, apn)) == Modem::SUCCESS;
+  return SerialModem.sendBasicCommand(cmd) == Modem::SUCCESS;
 }
 
 bool sm_interface_gps_set_slp(char *slp, uint16_t port) {
   const char *cmd;
   switch(SerialModem._hardware_interface) {
     case INTERFACE_MTSMC_H5:
-      cmd = PROGMEM_STR("AT+LCSSLP=1,\"%s\",%d");
+      cmd = cgb_sprintf(PROGMEM_STR("AT+LCSSLP=1,\"%s\",%d"), slp, port);
       break;
     case INTERFACE_SIM5218:
-      cmd = PROGMEM_STR("AT+CGPSURL=\"%s:%d\"");
+      cmd = cgb_sprintf(PROGMEM_STR("AT+CGPSURL=\"%s:%d\""), slp, port);
       break;
     default:
       return false;
   }
-  return SerialModem.sendBasicCommand(cgb_sprintf(cmd, slp, port)) == Modem::SUCCESS;
+  return SerialModem.sendBasicCommand(cmd) == Modem::SUCCESS;
 }
 
 bool sm_interface_gps_enable() {
   const char *cmd;
   switch(SerialModem._hardware_interface) {
     case INTERFACE_MTSMC_H5:
-      cmd = PROGMEM_STR("AT+GPSSLSR=1,1");
+      cmd = cgb_sprintf(PROGMEM_STR("AT+GPSSLSR=1,1"));
       break;
     case INTERFACE_SIM5218:
-      cmd = PROGMEM_STR("AT+CGPS=1,2");
+      cmd = cgb_sprintf(PROGMEM_STR("AT+CGPS=1,2"));
       break;
     default:
       return false;
