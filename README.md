@@ -2,8 +2,8 @@ Introduction
 ==================
 
 SerialModem is a c++ support library for WCDMA/HSPA modems over a serial interface. Currently supported modems are:
-* [Cooking Hacks SIM5218E Shield](http://www.cooking-hacks.com/documentation/tutorials/arduino-3g-gprs-gsm-gps) - `INTERFACE_SIM5218`
-* [MultiTech MTSMC-H5-IP](http://www.multitech.com/en_US/PRODUCTS/Families/SocketModemiCell/) - `INTERFACE_MTSMC_H5`
+* [Cooking Hacks SIM5218E Shield](http://www.cooking-hacks.com/documentation/tutorials/arduino-3g-gprs-gsm-gps) - `DRIVER_SIM5218`
+* [MultiTech MTSMC-H5-IP](http://www.multitech.com/en_US/PRODUCTS/Families/SocketModemiCell/) - `DRIVER_MTSMC_H5`
 
 SerialModem was initially designed for [Arduino](http://www.arduino.cc/) based devices using the [Arduino 3g GPRS/GSM/GPS Shield](http://www.cooking-hacks.com/documentation/tutorials/arduino-3g-gprs-gsm-gps); but has since evolved to support additional modems.
 
@@ -26,13 +26,13 @@ You will need to include the libaries main header to gives access to the SerialM
 #include "SerialModem.h"
 ```
 
-To setup the modem you will need to specify what modem you are using via the `setHardwareInterface` method as well as set the correct Network APN using the `setAPN` method. This is typically done in the microcontroller startup phase using the following code:
+To setup the modem you will need to specify what modem you are using via the `setDriver` method as well as set the correct Network APN using the `setAPN` method. This is typically done in the microcontroller startup phase using the following code:
 
 ```cpp
 void setup() {
   ...
   // Specify the Modem you are using
-  SerialModem.setHardwareInterface(INTERFACE_SIM5218);
+  SerialModem.setDriver(DRIVER_SIM5218);
   SerialModem.begin(&Serial, 115200);
   while (!SerialModem.ready()) {
     Serial.println("waiting for modem ready");
