@@ -4,7 +4,7 @@ void setup() {
   Serial.begin(115200);
   while (!Serial);
 
-  SerialModem.setHardwareInterface(INTERFACE_SIM5218);
+  SerialModem.setDriver(DRIVER_SIM5218);
   SerialModem.begin(&Serial, 115200);
   while (!SerialModem.ready()) {
     Serial.println("waiting for modem ready..");
