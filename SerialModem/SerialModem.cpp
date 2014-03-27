@@ -3,7 +3,6 @@
 
 using namespace Modem;
 
-
 SerialModemClass SerialModem;
 // The CircularBuffer is created with a reference to the shared buffer so compile
 // time has an accurate SRAM usage calculation vs allocating it at run-time
@@ -29,6 +28,7 @@ void sm_hardware_set_dtr(uint8_t pin, bool state) {
 
 SerialModemClass::SerialModemClass() : _hardware_power_pin(-1),
                                        _hardware_dtr_pin(-1),
+                                       _driver(NULL),
                                        _sim_pin(NULL),
                                        _powered_on(false) {
 
@@ -41,7 +41,7 @@ bool SerialModemClass::begin(SMSerialInterfaceClass serial, uint32_t baud) {
 
   if (!_powered_on) {
     // Double check to see if our modem isn't on
-    _powered_on == sm_interface_attention();
+    _powered_on == _driver->attention();
   }
   if (!_powered_on)
     hwStart();
@@ -53,33 +53,39 @@ bool SerialModemClass::begin(SMSerialInterfaceClass serial, uint32_t baud) {
 }
 
 bool SerialModemClass::ready() {
-  return assert_hardware_interface() &&
+  return assert_driver() &&
          _powered_on &&
-         sm_interface_attention();
+         _driver->attention();
 }
 
 //
 // Hardware Interface
 //
 
-void SerialModemClass::setHardwareInterface(sm_interface interface) {
-  _hardware_interface = interface;
+void SerialModemClass::setDriver(IModemDriver *driver) {
+  if (_driver)
+    free(_driver);
+  _driver = driver;
+}
+
+IModemDriver * SerialModemClass::driver() {
+  return _driver;
 }
 
 bool SerialModemClass::setSIMPin(char *pin) {
   return !!pin &&
-         assert_hardware_interface() &&
-         sm_interface_set_sim_pin(pin);
+         assert_driver() &&
+         _driver->setSIMPin(pin);
 }
 
 bool SerialModemClass::setAPN(char *apn) {
-  return assert_hardware_interface() &&
-         sm_interface_set_apn(apn);
+  return assert_driver() &&
+         _driver->setAPN(apn);
 }
 
-uint8_t SerialModemClass::getNetworkStatus() {
-  return assert_hardware_interface() ?
-         sm_interface_network_status() : NETWORK_STATUS_UNKNOWN;
+NetworkStatus SerialModemClass::getNetworkStatus() {
+  return assert_driver() ?
+         _driver->networkStatus() : NETWORK_STATUS_UNKNOWN;
 }
 
 //
@@ -112,7 +118,7 @@ void SerialModemClass::setHardwarePowerPin(uint8_t pin) {
 //
 
 size_t SerialModemClass::writeBytes(const uint8_t *bytes, size_t size) {
-  if (!assert_hardware_interface())
+  if (!assert_driver())
     return 0;
 #ifdef DEBUG
   // could this be shortened/cleaned up?
@@ -148,7 +154,7 @@ uint8_t SerialModemClass::sendBasicCommand(const char *cmd, uint32_t timeout, ch
 }
 
 char * SerialModemClass::sendCommand(const char *cmd, uint32_t timeout, char esc, char *responseCheck) {
-  if (!assert_hardware_interface())
+  if (!assert_driver())
     return NULL;
 
   DLog("$ %s\n", cmd);
@@ -220,7 +226,7 @@ char * SerialModemClass::sendCommand(const char *cmd, uint32_t timeout, char esc
 }
 
 uint8_t SerialModemClass::readLine(char *buffer, uint8_t size, unsigned int timeout) {
-  if (!assert_hardware_interface())
+  if (!assert_driver())
     return 0;
   uint8_t pos=0;
   unsigned long previous = plt_millis();
@@ -251,8 +257,8 @@ uint8_t SerialModemClass::readLine(char *buffer, uint8_t size, unsigned int time
   return 0;
 }
 
-bool SerialModemClass::assert_hardware_interface() {
-  if (!_hardware_interface) {
+bool SerialModemClass::assert_driver() {
+  if (!_driver) {
     DLog("* ERROR: no specified hardware interface\n");
     return false;
   }

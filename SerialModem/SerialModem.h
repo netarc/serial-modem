@@ -1,14 +1,24 @@
 #ifndef _SERIAL_MODEM__H_
 #define _SERIAL_MODEM__H_
 
-#define DEBUG
+// #define DEBUG
 
 #include <inttypes.h>
 
+enum NetworkStatus {
+  NETWORK_STATUS_UNKNOWN        = 0x00,
+  NETWORK_STATUS_DENIED         = 0x01,
+  NETWORK_STATUS_NOT_REGISTERED = 0x02,
+  NETWORK_STATUS_SEARCHING      = 0x03,
+  NETWORK_STATUS_ROAMING        = 0x04,
+  NETWORK_STATUS_REGISTERED     = 0x05
+};
+
+
 #include "platforms/platform.h"
 #include "util.h"
-#include "Interface.h"
 #include "debug.h"
+#include "drivers/_interface.h"
 
 #define SERIAL_MODEM_SHARED_BUFFER 256
 
@@ -26,7 +36,8 @@ public:
   // Hardware Interface
   //
 
-  void setHardwareInterface(sm_interface interface);
+  void setDriver(IModemDriver *driver);
+  IModemDriver *driver();
 
   // Set the pin used to unlock the SIM.
   // By default there is no pin set and can always be cleared by setting to NULL.
@@ -35,7 +46,7 @@ public:
   // By default there is no APN set and the device default is used.
   bool setAPN(char *apn);
 
-  uint8_t getNetworkStatus();
+  NetworkStatus getNetworkStatus();
 
   //
   // Hardware Control
@@ -63,11 +74,11 @@ public:
   uint8_t readLine(char *buffer, uint8_t size, unsigned int timeout);
 
   SMSerialInterfaceClass _hardware_serial;
-  sm_interface _hardware_interface;
 
 private:
-  bool assert_hardware_interface();
+  bool assert_driver();
 
+  IModemDriver *_driver;
   bool _powered_on;
   char *_sim_pin;
   uint8_t _hardware_power_pin;
@@ -76,9 +87,10 @@ private:
 
 extern SerialModemClass SerialModem;
 
-// #include "hardware/interface_base.h"
-// #include "hardware/interface_mtsmc_h5.h"
-// #include "hardware/interface_sim5218.h"
+#include "drivers/_base.h"
+#include "drivers/mtsmc_h5.h"
+#include "drivers/sim5218.h"
+
 #include <SerialModemClient.h>
 #include <SerialModemGPS.h>
 
