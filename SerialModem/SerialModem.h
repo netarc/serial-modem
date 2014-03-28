@@ -14,6 +14,11 @@ enum NetworkStatus {
   NETWORK_STATUS_REGISTERED     = 0x05
 };
 
+typedef struct {
+  uint8_t pinPower;
+  uint8_t pinDTR;
+} hardware_config_t;
+
 
 #include "platforms/platform.h"
 #include "util.h"
@@ -23,18 +28,17 @@ enum NetworkStatus {
 #define SERIAL_MODEM_SHARED_BUFFER 256
 
 
+
 class SerialModemClass {
 public:
   SerialModemClass();
 
-  // This will start the modem if it has not been already and will also initialize the modem
-  bool begin(SMSerialInterfaceClass serial, uint32_t baud=115200);
+  ////////////////////////////////////////////////////////////////////////////////
+  // Configuration
+  ////////////////////////////////////////////////////////////////////////////////
 
-  bool ready();
-
-  //
-  // Hardware Interface
-  //
+  // Set the serial interface for this modem
+  bool setSerial(SMSerialInterfaceClass serial, uint32_t baud=115200);
 
   void setDriver(IModemDriver *driver);
   IModemDriver *driver();
@@ -46,43 +50,35 @@ public:
   // By default there is no APN set and the device default is used.
   bool setAPN(char *apn);
 
+  void configHardware(uint8_t pinPower, uint8_t pinDTR=-1);
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // Operation
+  ////////////////////////////////////////////////////////////////////////////////
+
+  bool ready();
+
   NetworkStatus getNetworkStatus();
-
-  //
-  // Hardware Control
-  //
-
-  // Send a hardware start signal if the modem is not already known to be on.
-  void hwStart();
-
-  // Send a hardware shutdown signal if the modem is not already known to be off.
-  void hwShutdown();
-
-  // Set the pin used to signal the modem on/off
-  void setHardwarePowerPin(uint8_t pin);
-
-  // Set the pin used to signal the modem of DTR
-  void setHardwareDTRPin(uint8_t pin);
 
   //
   // Modem Serial Handling
   //
 
-  uint8_t sendBasicCommand(const char *cmd, uint32_t timeout=1000, char esc = Modem::ESC_CR);
-  char * sendCommand(const char *cmd, uint32_t timeout=1000, char esc = Modem::ESC_CR, char *responseCheck=NULL);
+  uint8_t sendBasicCommand(const char *cmd, uint32_t timeout=500, char esc = Modem::ESC_CR);
+  char * sendCommand(const char *cmd, uint32_t timeout=500, char esc = Modem::ESC_CR, char *responseCheck=NULL);
   size_t writeBytes(const uint8_t *bytes, size_t size);
   uint8_t readLine(char *buffer, uint8_t size, unsigned int timeout);
 
   SMSerialInterfaceClass _hardware_serial;
 
-private:
+protected:
+  void onPowerOn();
+
   bool assert_driver();
 
   IModemDriver *_driver;
   bool _powered_on;
   char *_sim_pin;
-  uint8_t _hardware_power_pin;
-  uint8_t _hardware_dtr_pin;
 };
 
 extern SerialModemClass SerialModem;

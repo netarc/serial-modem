@@ -5,8 +5,45 @@ using namespace Modem;
 
 class BaseDriver : public IModemDriver {
 public:
+  ////////////////////////////////////////////////////////////////////////////////
+  // Hardware
+  ////////////////////////////////////////////////////////////////////////////////
+
+  virtual bool powerOn() {
+    if (_hardware_config.pinPower == -1)
+      return true;
+
+    hw_setPinMode(_hardware_config.pinPower, hw_OUTPUT);
+    hw_digitalWrite(_hardware_config.pinPower, hw_HIGH);
+    plt_delay(200);
+    hw_digitalWrite(_hardware_config.pinPower, hw_LOW);
+    plt_delay(3000);
+    for (int i=0; i<10; i++) {
+      plt_delay(750);
+      if (attention())
+        return true;
+    }
+    return false;
+  }
+
+  virtual bool powerOff() {
+    return !attention();
+  }
+
+  virtual bool powerCycle() {
+    return !attention();
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // Software
+  ////////////////////////////////////////////////////////////////////////////////
+
   virtual bool attention() {
-    return SerialModem.sendBasicCommand(PROGMEM_STR("AT")) == Modem::SUCCESS;
+    return SerialModem.sendBasicCommand(PROGMEM_STR("AT"), 250) == Modem::SUCCESS;
+  }
+
+  virtual bool setEchoCommand(bool enabled) {
+    return SerialModem.sendBasicCommand(cgb_sprintf(PROGMEM_STR("ATE%i"), enabled ? 1 : 0), 250) == Modem::SUCCESS;
   }
 
   virtual NetworkStatus networkStatus() {

@@ -3,10 +3,28 @@
 
 class IModemDriver {
 public:
-  /// Initially supported by Base
+  void configHardware(uint8_t pinPower, uint8_t pinDTR) {
+    _hardware_config.pinPower = pinPower;
+    _hardware_config.pinDTR = pinDTR;
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // Hardware
+  ////////////////////////////////////////////////////////////////////////////////
+
+  virtual bool powerOn() = 0;
+  virtual bool powerOff() = 0;
+  virtual bool powerCycle() = 0;
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // Software
+  ////////////////////////////////////////////////////////////////////////////////
 
   // Ping the modem for responsiveness
   virtual bool attention() = 0;
+
+  // Echo back all commands for verification
+  virtual bool setEchoCommand(bool enabled) = 0;
 
   // Check the current status of the modems network connection
   virtual NetworkStatus networkStatus() = 0;
@@ -24,6 +42,9 @@ public:
 
   // Set the server to be used to GPS calculations
   virtual bool gpsSetServer(char *server, uint16_t port) = 0;
+
+protected:
+  hardware_config_t _hardware_config;
 };
 
 #endif // SERIAL_MODEM_IMODEMDRIVER_H

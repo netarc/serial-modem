@@ -9,63 +9,26 @@ SerialModemClass SerialModem;
 char g_sharedBuffer[SERIAL_MODEM_SHARED_BUFFER];
 CircularBuffer *g_circularBuffer = new CircularBuffer(g_sharedBuffer, SERIAL_MODEM_SHARED_BUFFER);
 
-void sm_hardware_power_toggle(uint8_t pin) {
-  if (pin == -1)
-    return;
-  hw_setPinMode(pin, hw_OUTPUT);
-  hw_digitalWrite(pin, hw_HIGH);
-  plt_delay(200);
-  hw_digitalWrite(pin, hw_LOW);
-}
 
-void sm_hardware_set_dtr(uint8_t pin, bool state) {
-  if (pin == -1)
-    return;
-  hw_setPinMode(pin, hw_OUTPUT);
-  hw_digitalWrite(pin, state ? hw_HIGH : hw_LOW);
-}
-
-
-SerialModemClass::SerialModemClass() : _hardware_power_pin(-1),
-                                       _hardware_dtr_pin(-1),
-                                       _driver(NULL),
+SerialModemClass::SerialModemClass() : _driver(NULL),
                                        _sim_pin(NULL),
                                        _powered_on(false) {
-
 }
 
-bool SerialModemClass::begin(SMSerialInterfaceClass serial, uint32_t baud) {
+////////////////////////////////////////////////////////////////////////////////
+// Configuration
+////////////////////////////////////////////////////////////////////////////////
+
+bool SerialModemClass::setSerial(SMSerialInterfaceClass serial, uint32_t baud) {
   _hardware_serial = serial;
   _hardware_serial->begin(baud);
-  // while(!plt_SERIAL_MODEM);
-
-  if (!_powered_on) {
-    // Double check to see if our modem isn't on
-    _powered_on == _driver->attention();
-  }
-  if (!_powered_on)
-    hwStart();
-
-  return ready();
-  // writeCommand("ATE0"); // disable command echo
-  // writeCommand("AT&V"); // read current configuration
-  // writeCommand("AT+CFUN?");
 }
-
-bool SerialModemClass::ready() {
-  return assert_driver() &&
-         _powered_on &&
-         _driver->attention();
-}
-
-//
-// Hardware Interface
-//
 
 void SerialModemClass::setDriver(IModemDriver *driver) {
   if (_driver)
     free(_driver);
   _driver = driver;
+  _driver->configHardware(-1, -1);
 }
 
 IModemDriver * SerialModemClass::driver() {
@@ -83,34 +46,32 @@ bool SerialModemClass::setAPN(char *apn) {
          _driver->setAPN(apn);
 }
 
+
+void SerialModemClass::configHardware(uint8_t pinPower, uint8_t pinDTR) {
+  if (!assert_driver())
+    return;
+  _driver->configHardware(pinPower, pinDTR);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Operation
+////////////////////////////////////////////////////////////////////////////////
+
+bool SerialModemClass::ready() {
+  if (!assert_driver())
+    return false;
+
+  if ( (!_powered_on && (_powered_on = _driver->attention())) ||
+       (_powered_on = _driver->powerOn()) ) {
+    onPowerOn();
+    return true;
+  }
+  return false;
+}
+
 NetworkStatus SerialModemClass::getNetworkStatus() {
   return assert_driver() ?
          _driver->networkStatus() : NETWORK_STATUS_UNKNOWN;
-}
-
-//
-// Hardware Control
-//
-
-void SerialModemClass::hwStart() {
-  // No need to attempt a power toggle when we "know" we have been powered on
-  if (_powered_on)
-    return;
-
-  sm_hardware_power_toggle(_hardware_power_pin);
-  _powered_on = true;
-}
-
-void SerialModemClass::hwShutdown() {
-  if (!_powered_on)
-    return;
-
-  sm_hardware_power_toggle(_hardware_power_pin);
-  _powered_on = false;
-}
-
-void SerialModemClass::setHardwarePowerPin(uint8_t pin) {
-  _hardware_power_pin = pin;
 }
 
 //
@@ -167,14 +128,8 @@ char * SerialModemClass::sendCommand(const char *cmd, uint32_t timeout, char esc
 
   g_circularBuffer->resetLeft();
 
-  uint8_t pos=0;
-  // char *ptr_write = &g_sharedBuffer[0];
-  // char *ptr_last_line = ptr_write;
-  // char *ptr_end = ptr_write + SERIAL_MODEM_SHARED_BUFFER - 1;
-
   uint32_t started_at = plt_millis();
   bool started=false;
-  // bool recv_line=false;
   do {
     plt_delay(10);
 
@@ -196,29 +151,6 @@ char * SerialModemClass::sendCommand(const char *cmd, uint32_t timeout, char esc
          (responseCheck && (responseMatch = g_circularBuffer->substring(responseCheck, ESC_CR))) ) {
       return g_circularBuffer->realignLeft();
     }
-
-    // if (!started) {
-    //   char *match = strstr(g_sharedBuffer, cmd);
-    //   if (recv_line && !match)
-    //     started = true;
-    //   else if (pos > strlen(cmd) + 2)
-    //     started = true;
-    //   // match && recv_line)
-    //   // if (match && *(match + strlen(cmd)) == 13) {
-    //   //   started = true;
-    //   //   DLog(" * started with echo match!\n");
-    //   //   DLog(">> %s\n", g_sharedBuffer);
-    //   // }
-    //   // else if (ptr_write > &g_sharedBuffer[0] + strlen(cmd) + 2) {
-    //   //   started = true;
-    //   //   DLog(" * started with length!\n");
-    //   //   DLog(">> %s\n", g_sharedBuffer);
-    //   // }
-    // }
-    // else if (ptr_prev == ptr_write) {
-    //   DLog("> %s\n", g_sharedBuffer);
-    //   return g_sharedBuffer;
-    // }
   } while((plt_millis() - started_at) < timeout);
   DLog(" * sendCommand timeout\n");
   DLog(">> %s\n", g_circularBuffer->realignLeft());
@@ -255,6 +187,14 @@ uint8_t SerialModemClass::readLine(char *buffer, uint8_t size, unsigned int time
     }
   } while((millis() - previous) < timeout && pos < size);
   return 0;
+}
+
+void SerialModemClass::onPowerOn() {
+  if (assert_driver()) {
+    _driver->setEchoCommand(false);
+  }
+  // writeCommand("AT&V"); // read current configuration
+  // writeCommand("AT+CFUN?");
 }
 
 bool SerialModemClass::assert_driver() {
