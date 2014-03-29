@@ -33,7 +33,7 @@ void setup() {
   ...
   // Specify the Modem you are using
   SerialModem.setDriver(DRIVER_SIM5218);
-  SerialModem.begin(&Serial, 115200);
+  SerialModem.setSerial(&Serial, 115200);
   while (!SerialModem.ready()) {
     Serial.println("waiting for modem ready");
     delay(2000);
