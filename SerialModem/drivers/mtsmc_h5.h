@@ -21,7 +21,7 @@ public:
   ////////////////////////////////////////////////////////////////////////////////
 
   virtual bool setAPN(const char *apn) {
-    return SerialModem.sendBasicCommand(cgb_sprintf(PROGMEM_STR("AT+CGDCONT=1,\"IP\",\"APN\",\"%s\",0,0"), apn)) == Modem::SUCCESS;
+    return SerialModem.sendBasicCommand(cgb_sprintf(PROGMEM_STR("AT+CGDCONT=1,\"IP\",\"%s\""), apn)) == Modem::SUCCESS;
   }
 
   virtual bool gpsEnable() {
