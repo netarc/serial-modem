@@ -194,7 +194,8 @@ uint8_t SerialModemClass::readLine(char *buffer, uint8_t size, unsigned int time
 
 void SerialModemClass::onPowerOn() {
   if (assert_driver()) {
-    _driver->setEchoCommand(false);
+    // _driver->setEchoCommand(false);
+    _driver->setErrorVerbose(true);
   }
   // writeCommand("AT&V"); // read current configuration
   // writeCommand("AT+CFUN?");

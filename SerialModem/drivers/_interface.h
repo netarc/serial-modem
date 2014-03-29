@@ -23,8 +23,11 @@ public:
   // Ping the modem for responsiveness
   virtual bool attention() = 0;
 
-  // Echo back all commands for verification
-  virtual bool setEchoCommand(bool enabled) = 0;
+  // Enable or Disable command echoing
+  virtual bool setEchoCommand(bool state) = 0;
+
+  // Enable or Disable Error verbosity
+  virtual bool setErrorVerbose(bool state) = 0;
 
   // Check the current status of the modems network connection
   virtual NetworkStatus networkStatus() = 0;

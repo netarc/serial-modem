@@ -42,8 +42,12 @@ public:
     return SerialModem.sendBasicCommand(PROGMEM_STR("AT"), 250) == Modem::SUCCESS;
   }
 
-  virtual bool setEchoCommand(bool enabled) {
-    return SerialModem.sendBasicCommand(cgb_sprintf(PROGMEM_STR("ATE%i"), enabled ? 1 : 0), 250) == Modem::SUCCESS;
+  virtual bool setEchoCommand(bool state) {
+    return SerialModem.sendBasicCommand(cgb_sprintf(PROGMEM_STR("ATE%i"), state ? 1 : 0), 250) == Modem::SUCCESS;
+  }
+
+  virtual bool setErrorVerbose(bool state) {
+    return SerialModem.sendBasicCommand(cgb_sprintf(PROGMEM_STR("AT+CMEE=%i"), state ? 2 : 0)) == Modem::SUCCESS;
   }
 
   virtual NetworkStatus networkStatus() {
