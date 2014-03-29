@@ -25,6 +25,8 @@ bool SerialModemClass::setSerial(SMSerialInterfaceClass serial, uint32_t baud) {
 }
 
 void SerialModemClass::setDriver(IModemDriver *driver) {
+  if (!driver)
+    return;
   if (_driver)
     free(_driver);
   _driver = driver;
@@ -42,7 +44,8 @@ bool SerialModemClass::setSIMPin(char *pin) {
 }
 
 bool SerialModemClass::setAPN(char *apn) {
-  return assert_driver() &&
+  return !!apn &&
+         assert_driver() &&
          _driver->setAPN(apn);
 }
 
