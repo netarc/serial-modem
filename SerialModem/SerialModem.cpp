@@ -152,6 +152,8 @@ char * SerialModemClass::sendCommand(const char *cmd, uint32_t timeout, char esc
     if ( (responseMatch = g_circularBuffer->substring("OK", ESC_CR)) ||
          (responseMatch = g_circularBuffer->substring("ERROR", ESC_CR)) ||
          (responseCheck && (responseMatch = g_circularBuffer->substring(responseCheck, ESC_CR))) ) {
+      DLog(" * match\n");
+      DLog(">> %s\n", g_circularBuffer->realignLeft());
       return g_circularBuffer->realignLeft();
     }
   } while((plt_millis() - started_at) < timeout);
