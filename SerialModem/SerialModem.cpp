@@ -89,7 +89,7 @@ size_t SerialModemClass::writeBytes(const uint8_t *bytes, size_t size) {
   // we are just sniffing outgoing bytes to check for line-breaks for cleaner debug output..
   static bool gWriteIsNewline=true;
   if (gWriteIsNewline)
-    DLog("$ ");
+    DLog("> ");
   int offset = 0;
   char tmp[83];
   do {
@@ -131,14 +131,15 @@ char * SerialModemClass::sendCommand(const char *cmd, uint32_t timeout, char esc
 
   g_circularBuffer->resetLeft();
 
-  uint32_t started_at = plt_millis();
   bool started=false;
+  uint32_t started_at = plt_millis();
+  uint16_t previousRead = 0;
+  uint16_t bytesRead = 0;
   do {
     plt_delay(10);
 
-    // Since our buffer is circular, read only a "page" at a time at most
-    uint16_t bytesRead = 0;
-    while (_hardware_serial->available() && bytesRead < SERIAL_MODEM_SHARED_BUFFER) {
+    previousRead = bytesRead;
+    while (_hardware_serial->available()) {
       char ch = _hardware_serial->read();
       if (ch == ESC_CR ||
           ch == ESC_NL ||
@@ -148,18 +149,23 @@ char * SerialModemClass::sendCommand(const char *cmd, uint32_t timeout, char esc
       }
     }
 
-    char *responseMatch = NULL;
-    if ( (responseMatch = g_circularBuffer->substring("OK", ESC_CR)) ||
-         (responseMatch = g_circularBuffer->substring("ERROR", ESC_CR)) ||
-         (responseCheck && (responseMatch = g_circularBuffer->substring(responseCheck, ESC_CR))) ) {
-      DLog(" * match\n");
-      DLog(">> %s\n", g_circularBuffer->realignLeft());
-      return g_circularBuffer->realignLeft();
+    if (!started) {
+      if ( (g_circularBuffer->substring("OK", ESC_CR)) ||
+           (g_circularBuffer->substring("ERROR", ESC_CR)) ||
+           (responseCheck && g_circularBuffer->substring(responseCheck, ESC_CR)) )
+        started = true;
     }
-  } while((plt_millis() - started_at) < timeout);
-  DLog(" * sendCommand timeout\n");
-  DLog(">> %s\n", g_circularBuffer->realignLeft());
-  return NULL;
+    else if (previousRead == bytesRead) {
+      break;
+    }
+
+    if ((plt_millis() - started_at) >= timeout) {
+      DLog(" * sendCommand timeout\n");
+      break;
+    }
+  } while(true);
+  DLog("$> %s\n", g_circularBuffer->realignLeft());
+  return started ? g_circularBuffer->realignLeft() : NULL;
 }
 
 uint8_t SerialModemClass::readLine(char *buffer, uint8_t size, unsigned int timeout) {
@@ -196,7 +202,7 @@ uint8_t SerialModemClass::readLine(char *buffer, uint8_t size, unsigned int time
 
 void SerialModemClass::onPowerOn() {
   if (assert_driver()) {
-    // _driver->setEchoCommand(false);
+    _driver->setEchoCommand(false);
     _driver->setErrorVerbose(true);
   }
   // writeCommand("AT&V"); // read current configuration
