@@ -11,7 +11,7 @@
 
 //  Default platform specific method pointers to null space to declare prototypes for compile time
 #define plt_millis() 0
-#define plt_delay(...)
+#define plt_delay(ms)
 
 #define SMSerialInterfaceClass void *
 

@@ -29,7 +29,7 @@
   #define plt_setPinMode(...) pinMode(__VA_ARGS__)
   #define plt_digitalWrite(...) digitalWrite(__VA_ARGS__)
   #define plt_millis() millis()
-  #define plt_delay(...)
+  #define plt_delay(ms) delay(ms)
 
   #define SMSerialInterfaceClass HardwareSerial *
 
