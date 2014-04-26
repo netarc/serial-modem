@@ -16,8 +16,9 @@
 #define SMSerialInterfaceClass void *
 
 // PROGMEM strings support
+#define PROGMEM_RAW(str) str
 #define PROGMEM_PTR void *
-#define PROGMEM_STR(x) x
+#define PROGMEM_STR(str) str
 
 #include "platforms/_arduino.h"
 

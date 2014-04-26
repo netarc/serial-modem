@@ -35,8 +35,9 @@
 
   // Make use of PROGMEM strings
   #ifdef PGM_P
+    #define PROGMEM_RAW(str) ((PGM_P)F(str))
     #define PROGMEM_PTR PGM_P
-    #define PROGMEM_STR(str) Modem::__PROGMEM_STR((PGM_P)F(str))
+    #define PROGMEM_STR(str) Modem::__PROGMEM_STR(PROGMEM_RAW(str))
   #endif
 
   static int _hw_printf(const char *format, ...) {
@@ -46,8 +47,8 @@
     vsnprintf(buf, 128-1, format, ap);
     for(char *p = &buf[0]; *p; p++) {
       if(*p == '\n')
-        SERIAL_PORT_MONITOR.write('\r');
-      SERIAL_PORT_MONITOR.write(*p);
+        Serial.write('\r');
+      Serial.write(*p);
     }
     va_end(ap);
     return strlen(buf);
