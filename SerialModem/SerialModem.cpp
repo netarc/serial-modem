@@ -105,21 +105,20 @@ size_t SerialModemClass::writeBytes(const uint8_t *bytes, size_t size) {
 }
 
 uint8_t SerialModemClass::sendBasicCommand(const char *cmd, uint32_t timeout, char esc) {
-  char *response = sendCommand(cmd, timeout, esc);
-
-  if (!response)
-    return Modem::NO_RESPONSE;
-  else if (strcasestr(response, "OK"))
-    return Modem::SUCCESS;
-  else if (strcasestr(response, "ERROR"))
-    return Modem::ERROR;
-  else
-    return Modem::FAILURE;
+  return parseBasicResponse(sendCommand(cmd, timeout, esc));
 }
 
 char * SerialModemClass::sendCommand(const char *cmd, uint32_t timeout, char esc, char *responseCheck) {
   if (!assert_driver())
     return NULL;
+
+  writeCommand(cmd, esc);
+  return getResponse(timeout, responseCheck);
+}
+
+void SerialModemClass::writeCommand(const char *cmd, char esc) {
+  if (!assert_driver())
+    return;
 
   DLog("$ %s\n", cmd);
 
@@ -128,7 +127,9 @@ char * SerialModemClass::sendCommand(const char *cmd, uint32_t timeout, char esc
   _hardware_serial->write(cmd);
   if (esc)
     _hardware_serial->write(esc);
+}
 
+char * SerialModemClass::getResponse(uint32_t timeout, char *responseCheck) {
   g_circularBuffer->resetLeft();
 
   bool started=false;
@@ -166,6 +167,17 @@ char * SerialModemClass::sendCommand(const char *cmd, uint32_t timeout, char esc
   } while(true);
   DLog("$> %s\n", g_circularBuffer->realignLeft());
   return started ? g_circularBuffer->realignLeft() : NULL;
+}
+
+uint8_t SerialModemClass::parseBasicResponse(char *response) {
+  if (!response)
+    return Modem::NO_RESPONSE;
+  else if (strcasestr(response, "OK"))
+    return Modem::SUCCESS;
+  else if (strcasestr(response, "ERROR"))
+    return Modem::ERROR;
+  else
+    return Modem::FAILURE;
 }
 
 uint8_t SerialModemClass::readLine(char *buffer, uint8_t size, unsigned int timeout) {

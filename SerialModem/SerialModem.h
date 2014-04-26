@@ -1,7 +1,7 @@
 #ifndef _SERIAL_MODEM__H_
 #define _SERIAL_MODEM__H_
 
-// #define DEBUG
+#define DEBUG
 
 #include <inttypes.h>
 
@@ -66,6 +66,10 @@ public:
 
   uint8_t sendBasicCommand(const char *cmd, uint32_t timeout=500, char esc = Modem::ESC_CR);
   char * sendCommand(const char *cmd, uint32_t timeout=500, char esc = Modem::ESC_CR, char *responseCheck=NULL);
+  void writeCommand(const char *cmd, char esc = Modem::ESC_CR);
+  char * getResponse(uint32_t timeout=500, char *responseCheck=NULL);
+  uint8_t parseBasicResponse(char *response);
+
   size_t writeBytes(const uint8_t *bytes, size_t size);
   uint8_t readLine(char *buffer, uint8_t size, unsigned int timeout);
 
