@@ -35,7 +35,13 @@ public:
   // Set the password to be used to access the SIM
   virtual bool setSIMPin(const char *pin) = 0;
 
-  /// Initially supported by Drivers
+  // Establish network data connection
+  virtual bool connectData() = 0;
+  virtual bool openSocketTCP(const char *address, uint16_t port) = 0;
+  virtual bool closeSocket() = 0;
+  virtual int writeSocket(const uint8_t *bytes, size_t size) = 0;
+  // Establish network voice connection
+  virtual bool connectVoice() = 0;
 
   // Set the PDP APN to be used by the modem
   virtual bool setAPN(const char *apn) = 0;

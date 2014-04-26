@@ -5,6 +5,10 @@ using namespace Modem;
 
 class BaseDriver : public IModemDriver {
 public:
+  BaseDriver() {
+    _connectedData = _connectedVoice = _connectedSocket = false;
+  }
+
   ////////////////////////////////////////////////////////////////////////////////
   // Hardware
   ////////////////////////////////////////////////////////////////////////////////
@@ -76,6 +80,11 @@ public:
   virtual bool setSIMPin(const char *pin) {
     return SerialModem.sendBasicCommand(cgb_sprintf(PROGMEM_STR("AT+CPIN=%s"), pin)) == Modem::SUCCESS;
   }
+
+protected:
+  bool _connectedSocket;
+  bool _connectedData;
+  bool _connectedVoice;
 };
 
 #endif // SERIAL_MODEM_DRIVERS_BASE_H
