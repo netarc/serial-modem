@@ -26,7 +26,6 @@ private:
   void endTransmit();
 
   bool _connected;
-  bool _transmitMode;
 };
 
 #endif // _SERIAL_MODEM_CLIENT__H_
