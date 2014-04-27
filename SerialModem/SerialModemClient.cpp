@@ -2,7 +2,6 @@
 #include "SerialModemClient.h"
 #include "platforms/platform.h"
 
-using namespace Modem;
 
 SerialModemClient::SerialModemClient() : _connected(false) {
 }

@@ -6,7 +6,6 @@
 // AT Commands for version 12.00.023 -H5 HSPA+ and 12.00.223 -H6 Products
 // http://www.multitech.com/en_US/DOCUMENTS/Collateral/manuals/HPSA+%20AT%20Commands%20S000528C.pdf
 
-using namespace Modem;
 
 class DriverMTSMC_H5 : public BaseDriver {
 public:

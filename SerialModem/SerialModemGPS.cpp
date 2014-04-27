@@ -1,7 +1,6 @@
 #include "SerialModem.h"
 #include "SerialModemGPS.h"
 
-using namespace Modem;
 
 SerialModemGPS::SerialModemGPS() : _configured(false) {
 }

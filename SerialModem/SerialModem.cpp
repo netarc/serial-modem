@@ -1,7 +1,6 @@
 #include "SerialModem.h"
 #include "platforms/platform.h"
 
-// using namespace Modem;
 
 SerialModemClass SerialModem;
 // The CircularBuffer is created with a reference to the shared buffer so compile
