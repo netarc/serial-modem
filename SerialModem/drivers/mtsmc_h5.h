@@ -46,7 +46,7 @@ public:
     // response = SerialModem.sendCommand(PROGMEM_STR("AT#VSTATE"), 500, ESC_CR, PROGMEM_STR("STATE:"));
     if (!strcasestr(response, "CONNECTED")) {
       __PROGMEM_STR checkResponse = PROGMEM_STR("Ok_Info_GprsActivation");
-      sm_response_check_t responseCheck[] = {
+      response_check_t responseCheck[] = {
         {__PROGMEM_STR(RESPONSE_OK), true},
         {__PROGMEM_STR(RESPONSE_ERROR), true},
         {checkResponse, true},
@@ -71,7 +71,7 @@ public:
     __PROGMEM_STR checkResponse = PROGMEM_STR("Ok_Info_WaitingForData");
     __PROGMEM_STR _RESPONSE_OK = __PROGMEM_STR(RESPONSE_OK);
     __PROGMEM_STR _RESPONSE_ERROR = __PROGMEM_STR(RESPONSE_ERROR);
-    sm_response_check_t responseCheck[] = {
+    response_check_t responseCheck[] = {
       {_RESPONSE_OK, true},
       {_RESPONSE_ERROR, true},
       {checkResponse, true},

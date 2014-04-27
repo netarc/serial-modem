@@ -93,8 +93,8 @@ protected:
 
     SerialModem.writeCommand(cgb_sprintf(PROGMEM_STR("AT+TCPWRITE=%d"), _sendBufferWrite));
 
-    __PROGMEM_STR feedCheck = PROGMEM_STR("F");
-    sm_response_check_t feedResponseCheck[] = {
+    __PROGMEM_STR feedCheck = PROGMEM_STR(">");
+    response_check_t feedResponseCheck[] = {
       {feedCheck, false},
       {NULL, NULL}
     };
@@ -105,7 +105,7 @@ protected:
 
     __PROGMEM_STR writeCheck = PROGMEM_STR("+TCPWRITE:");
     __PROGMEM_STR _RESPONSE_ERROR = __PROGMEM_STR(RESPONSE_ERROR);
-    sm_response_check_t writeResponseCheck[] = {
+    response_check_t writeResponseCheck[] = {
       {writeCheck, false},
       {_RESPONSE_ERROR, true},
       {NULL, NULL}

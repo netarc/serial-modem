@@ -29,11 +29,11 @@ namespace Modem {
   #define SERIAL_MODEM_SHARED_BUFFER 256
 
 
-  typedef struct sm_response_check_t {
+  typedef struct response_check_t {
     char *name;
     bool escape;
-  } sm_response_check_t;
-  extern sm_response_check_t basic_response_check[];
+  } response_check_t;
+  extern response_check_t basic_response_check[];
 
 
   class SerialModemClass {
@@ -72,9 +72,9 @@ namespace Modem {
     //
 
     uint8_t sendBasicCommand(const char *cmd, uint32_t timeout=500, char esc = Modem::ESC_CR);
-    char * sendCommand(const char *cmd, sm_response_check_t *responseChecks=NULL, uint32_t timeout=500, char esc = Modem::ESC_CR);
+    char * sendCommand(const char *cmd, response_check_t *responseChecks=NULL, uint32_t timeout=500, char esc = Modem::ESC_CR);
     void writeCommand(const char *cmd, char esc = Modem::ESC_CR);
-    char * getResponse(sm_response_check_t *responseChecks, uint32_t timeout=500);
+    char * getResponse(response_check_t *responseChecks, uint32_t timeout=500);
     uint8_t parseBasicResponse(char *response);
 
     size_t writeBytes(const uint8_t *bytes, size_t size);

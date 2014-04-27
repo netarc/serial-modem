@@ -114,7 +114,7 @@ uint8_t SerialModemClass::sendBasicCommand(const char *cmd, uint32_t timeout, ch
   return parseBasicResponse(sendCommand(cmd, NULL, timeout, esc));
 }
 
-char * SerialModemClass::sendCommand(const char *cmd, sm_response_check_t *responseChecks, uint32_t timeout, char esc) {
+char * SerialModemClass::sendCommand(const char *cmd, response_check_t *responseChecks, uint32_t timeout, char esc) {
   if (!assert_driver())
     return NULL;
 
@@ -122,7 +122,7 @@ char * SerialModemClass::sendCommand(const char *cmd, sm_response_check_t *respo
   if (responseChecks == NULL) {
     __PROGMEM_STR _RESPONSE_OK = __PROGMEM_STR(RESPONSE_OK);
     __PROGMEM_STR _RESPONSE_ERROR = __PROGMEM_STR(RESPONSE_ERROR);
-    sm_response_check_t basicResponseCheck[] = {
+    response_check_t basicResponseCheck[] = {
       {_RESPONSE_OK, true},
       {_RESPONSE_ERROR, true},
       {NULL, NULL}
@@ -147,7 +147,7 @@ void SerialModemClass::writeCommand(const char *cmd, char esc) {
     _hardware_serial->write(esc);
 }
 
-char * SerialModemClass::getResponse(sm_response_check_t *responseChecks, uint32_t timeout) {
+char * SerialModemClass::getResponse(response_check_t *responseChecks, uint32_t timeout) {
   g_circularBuffer->resetLeft();
 
   bool started=false;
@@ -169,7 +169,7 @@ char * SerialModemClass::getResponse(sm_response_check_t *responseChecks, uint32
     }
 
     if (!started) {
-      for (sm_response_check_t *r=responseChecks; (r != NULL && r->name != NULL); r++) {
+      for (response_check_t *r=responseChecks; (r != NULL && r->name != NULL); r++) {
         if (g_circularBuffer->substring(r->name,
                                         r->escape ? ESC_CR : 0)) {
           started = true;
