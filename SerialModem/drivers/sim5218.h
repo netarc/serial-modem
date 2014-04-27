@@ -4,8 +4,6 @@
 // SIM5218 Serial Command Manual
 // http://www.cooking-hacks.com/skin/frontend/default/cooking/pdf/SIM5218_AT_command_manual.pdf
 
-using namespace Modem;
-
 #define SERIAL_MODEM_SIM5218_SOCKET_BUFFER 128
 
 // static char PROGMEM setAPN[]  = {"AT+CGSOCKCONT"};
@@ -95,21 +93,24 @@ protected:
 
     SerialModem.writeCommand(cgb_sprintf(PROGMEM_STR("AT+TCPWRITE=%d"), _sendBufferWrite));
 
-    sm_response_check_t feedCheck[] = {
-      {PROGMEM_STR(">"), false},
+    __PROGMEM_STR feedCheck = PROGMEM_STR("F");
+    sm_response_check_t feedResponseCheck[] = {
+      {feedCheck, false},
       {NULL, NULL}
     };
-    if (!SerialModem.getResponse(feedCheck, 30000))
+    if (!SerialModem.getResponse(feedResponseCheck, 30000))
       return false;
 
     SerialModem.writeBytes((const uint8_t *)&_sendBuffer[0], _sendBufferWrite);
 
-    sm_response_check_t check[] = {
-      {PROGMEM_STR("+TCPWRITE:"), false},
-      {__PROGMEM_STR(RESPONSE_ERROR), true},
+    __PROGMEM_STR writeCheck = PROGMEM_STR("+TCPWRITE:");
+    __PROGMEM_STR _RESPONSE_ERROR = __PROGMEM_STR(RESPONSE_ERROR);
+    sm_response_check_t writeResponseCheck[] = {
+      {writeCheck, false},
+      {_RESPONSE_ERROR, true},
       {NULL, NULL}
     };
-    if (SerialModem.parseBasicResponse(SerialModem.getResponse(check, 30000)) == Modem::SUCCESS ||
+    if (SerialModem.parseBasicResponse(SerialModem.getResponse(writeResponseCheck, 30000)) == Modem::SUCCESS ||
         forceClear)
       _sendBufferWrite = 0;
     return _sendBufferWrite == 0;

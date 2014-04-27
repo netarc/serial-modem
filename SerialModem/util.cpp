@@ -2,6 +2,9 @@
 
 namespace Modem {
   __PROGMEM_STR::__PROGMEM_STR(PROGMEM_PTR ptr) {
+    if (ptr == NULL)
+      return;
+
     #ifdef PGM_P
       _buffer = (char *)malloc(strlen_P(ptr) + 1);
       strcpy_P(_buffer, ptr);

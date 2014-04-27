@@ -69,9 +69,11 @@ public:
       return false;
 
     __PROGMEM_STR checkResponse = PROGMEM_STR("Ok_Info_WaitingForData");
+    __PROGMEM_STR _RESPONSE_OK = __PROGMEM_STR(RESPONSE_OK);
+    __PROGMEM_STR _RESPONSE_ERROR = __PROGMEM_STR(RESPONSE_ERROR);
     sm_response_check_t responseCheck[] = {
-      {__PROGMEM_STR(RESPONSE_OK), true},
-      {__PROGMEM_STR(RESPONSE_ERROR), true},
+      {_RESPONSE_OK, true},
+      {_RESPONSE_ERROR, true},
       {checkResponse, true},
       {NULL, NULL}
     };

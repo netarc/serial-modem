@@ -30,7 +30,7 @@ namespace Modem {
 
 
   typedef struct sm_response_check_t {
-    LSTRING_PTR name;
+    char *name;
     bool escape;
   } sm_response_check_t;
   extern sm_response_check_t basic_response_check[];

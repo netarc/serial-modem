@@ -120,9 +120,11 @@ char * SerialModemClass::sendCommand(const char *cmd, sm_response_check_t *respo
 
   writeCommand(cmd, esc);
   if (responseChecks == NULL) {
+    __PROGMEM_STR _RESPONSE_OK = __PROGMEM_STR(RESPONSE_OK);
+    __PROGMEM_STR _RESPONSE_ERROR = __PROGMEM_STR(RESPONSE_ERROR);
     sm_response_check_t basicResponseCheck[] = {
-      {__PROGMEM_STR(RESPONSE_OK), true},
-      {__PROGMEM_STR(RESPONSE_ERROR), true},
+      {_RESPONSE_OK, true},
+      {_RESPONSE_ERROR, true},
       {NULL, NULL}
     };
     return getResponse(basicResponseCheck, timeout);
@@ -167,7 +169,7 @@ char * SerialModemClass::getResponse(sm_response_check_t *responseChecks, uint32
     }
 
     if (!started) {
-      for (sm_response_check_t *r=responseChecks; (r != NULL && (void *)r->name != NULL); r++) {
+      for (sm_response_check_t *r=responseChecks; (r != NULL && r->name != NULL); r++) {
         if (g_circularBuffer->substring(r->name,
                                         r->escape ? ESC_CR : 0)) {
           started = true;

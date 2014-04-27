@@ -31,6 +31,7 @@
   class __PROGMEM_STR {
   public:
     __PROGMEM_STR(PROGMEM_PTR ptr);
+    // __PROGMEM_STR(char *str);
     ~__PROGMEM_STR(void);
 
     operator const char*() { return _buffer; }
