@@ -207,38 +207,6 @@ uint8_t SerialModemClass::parseBasicResponse(char *response) {
     return Modem::FAILURE;
 }
 
-uint8_t SerialModemClass::readLine(char *buffer, uint8_t size, unsigned int timeout) {
-  if (!assert_driver())
-    return 0;
-  uint8_t pos=0;
-  unsigned long previous = plt_millis();
-  do {
-    if (_hardware_serial->available() == 0)
-      continue;
-    char ch = _hardware_serial->read();
-    // filter out non-ascii characters (possible rx interference?)
-    if (ch >= 32 && ch <= 126)
-      buffer[pos++] = ch;
-    else if (ch == 10 || ch == 13) {
-      // check for an extra line-break/carriage-return and munch it
-      while ((ch = _hardware_serial->peek()) != 0) {
-        if (ch == 10 || ch == 13)
-          _hardware_serial->read();
-        else
-          break;
-      }
-      // an empty line is ignored
-      if (pos == 0)
-        continue;
-
-      buffer[pos] = 0;
-      DLog("> %s\n", buffer);
-      return pos;
-    }
-  } while((millis() - previous) < timeout && pos < size);
-  return 0;
-}
-
 void SerialModemClass::onPowerOn() {
   if (assert_driver()) {
     _driver->setEchoCommand(false);

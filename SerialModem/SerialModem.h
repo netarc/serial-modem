@@ -78,7 +78,6 @@ namespace Modem {
     uint8_t parseBasicResponse(char *response);
 
     size_t writeBytes(const uint8_t *bytes, size_t size);
-    uint8_t readLine(char *buffer, uint8_t size, unsigned int timeout);
 
     SMSerialInterfaceClass _hardware_serial;
 
