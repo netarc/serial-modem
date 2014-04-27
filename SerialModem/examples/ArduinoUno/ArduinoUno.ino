@@ -16,7 +16,7 @@ void setup() {
     delay(2000);
   }
 
-  while (!SerialModem.setAPN(PROGMEM_STR("m2m.com.attz"))) {
+  while (!SerialModem.setAPN("m2m.com.attz")) {
     Serial.println("setting APN");
     delay(2000);
   }

@@ -1,19 +1,23 @@
 #include "SerialModem.h"
 
 namespace Modem {
-  __PROGMEM_STR::__PROGMEM_STR(PROGMEM_PTR ptr) {
+  PMemString::PMemString(const char *str) {
+    _buffer = (char *)str;
+  }
+
+  PMemString::PMemString(const __PMemStringRef *ptr) {
     if (ptr == NULL)
       return;
 
     #ifdef PGM_P
-      _buffer = (char *)malloc(strlen_P(ptr) + 1);
-      strcpy_P(_buffer, ptr);
+      _buffer = (char *)malloc(strlen_P(reinterpret_cast<const prog_char *>(ptr)) + 1);
+      strcpy_P(_buffer, reinterpret_cast<const prog_char *>(ptr));
     #else
       #error "unhandled PROGMEM_PTR"
     #endif
   }
 
-  __PROGMEM_STR::~__PROGMEM_STR() {
+  PMemString::~PMemString() {
     if (_buffer)
       free(_buffer);
   }

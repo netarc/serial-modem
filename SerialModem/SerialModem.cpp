@@ -8,7 +8,6 @@ SerialModemClass SerialModem;
 char g_sharedBuffer[SERIAL_MODEM_SHARED_BUFFER];
 CircularBuffer *Modem::g_circularBuffer = new CircularBuffer(g_sharedBuffer, SERIAL_MODEM_SHARED_BUFFER);
 
-
 char PROGMEM Modem::RESPONSE_OK[]     = {"OK"};
 char PROGMEM Modem::RESPONSE_ERROR[]  = {"ERROR"};
 
@@ -119,8 +118,8 @@ char * SerialModemClass::sendCommand(const char *cmd, response_check_t *response
 
   writeCommand(cmd, esc);
   if (responseChecks == NULL) {
-    __PROGMEM_STR _RESPONSE_OK = __PROGMEM_STR(RESPONSE_OK);
-    __PROGMEM_STR _RESPONSE_ERROR = __PROGMEM_STR(RESPONSE_ERROR);
+    PMemString _RESPONSE_OK = PMemString(PMEM_STR_REF_ARRAY(RESPONSE_OK));
+    PMemString _RESPONSE_ERROR = PMemString(PMEM_STR_REF_ARRAY(RESPONSE_ERROR));
     response_check_t basicResponseCheck[] = {
       {_RESPONSE_OK, true},
       {_RESPONSE_ERROR, true},
@@ -192,9 +191,9 @@ char * SerialModemClass::getResponse(response_check_t *responseChecks, uint32_t 
 uint8_t SerialModemClass::parseBasicResponse(char *response) {
   if (!response)
     return Modem::NO_RESPONSE;
-  else if (strcasestr(response, __PROGMEM_STR(RESPONSE_OK)))
+  else if (strcasestr(response, PMemString(PMEM_STR_REF_ARRAY(RESPONSE_OK))))
     return Modem::SUCCESS;
-  else if (strcasestr(response, __PROGMEM_STR(RESPONSE_ERROR)))
+  else if (strcasestr(response, PMemString(PMEM_STR_REF_ARRAY(RESPONSE_ERROR))))
     return Modem::ERROR;
   else
     return Modem::FAILURE;

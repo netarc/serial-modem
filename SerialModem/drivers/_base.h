@@ -43,26 +43,26 @@ public:
   ////////////////////////////////////////////////////////////////////////////////
 
   virtual bool attention() {
-    return SerialModem.sendBasicCommand(PROGMEM_STR("AT"), 250) == Modem::SUCCESS;
+    return SerialModem.sendBasicCommand(PMEM_STR("AT"), 250) == Modem::SUCCESS;
   }
 
   virtual bool setEchoCommand(bool state) {
-    return SerialModem.sendBasicCommand(cgb_sprintf(PROGMEM_STR("ATE%i"), state ? 1 : 0), 250) == Modem::SUCCESS;
+    return SerialModem.sendBasicCommand(cgb_sprintf(PMEM_STR("ATE%i"), state ? 1 : 0), 250) == Modem::SUCCESS;
   }
 
   virtual bool setErrorVerbose(bool state) {
-    return SerialModem.sendBasicCommand(cgb_sprintf(PROGMEM_STR("AT+CMEE=%i"), state ? 2 : 0)) == Modem::SUCCESS;
+    return SerialModem.sendBasicCommand(cgb_sprintf(PMEM_STR("AT+CMEE=%i"), state ? 2 : 0)) == Modem::SUCCESS;
   }
 
   virtual NetworkStatus networkStatus() {
-    __PROGMEM_STR tokenMatch = PROGMEM_STR(" ,\n\r");
+    PMemString tokenMatch = PMEM_STR(" ,\n\r");
 
-    char *response = SerialModem.sendCommand(PROGMEM_STR("AT+CREG?"));
+    char *response = SerialModem.sendCommand(PMEM_STR("AT+CREG?"));
 
-    if (!response || !strstr(response, __PROGMEM_STR(RESPONSE_OK)))
+    if (!response || !strstr(response, PMemString(PMEM_STR_REF_ARRAY(RESPONSE_OK))))
       return NETWORK_STATUS_UNKNOWN;
 
-    char *r = strstr(response, PROGMEM_STR("+CREG:"));
+    char *r = strstr(response, PMEM_STR("+CREG:"));
     char *tkn = strtok(r, tokenMatch);
     tkn = strtok(NULL, tokenMatch);
     tkn = strtok(NULL, tokenMatch);
@@ -78,7 +78,7 @@ public:
   }
 
   virtual bool setSIMPin(const char *pin) {
-    return SerialModem.sendBasicCommand(cgb_sprintf(PROGMEM_STR("AT+CPIN=%s"), pin)) == Modem::SUCCESS;
+    return SerialModem.sendBasicCommand(cgb_sprintf(PMEM_STR("AT+CPIN=%s"), pin)) == Modem::SUCCESS;
   }
 
   virtual void onSocketRead() {}

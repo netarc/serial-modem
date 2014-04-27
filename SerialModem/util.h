@@ -26,13 +26,14 @@
   char *cgb_sprintf(const char *format, ...);
 
   /**
-   * __PROGMEM_STR is a string wrapper used for PROGMEM strings to bring them into the SRAM heap temporarily
+   * PMemString is a string wrapper used for PROGMEM strings to bring them into the SRAM heap temporarily
    */
-  class __PROGMEM_STR {
+  class __PMemStringRef;
+  class PMemString {
   public:
-    explicit __PROGMEM_STR(PROGMEM_PTR ptr);
-    // __PROGMEM_STR(char *str);
-    ~__PROGMEM_STR(void);
+    PMemString(const char *str);
+    explicit PMemString(const __PMemStringRef *ptr);
+    ~PMemString(void);
 
     operator const char*() { return _buffer; }
     operator char*() { return _buffer; }
@@ -40,6 +41,8 @@
   protected:
     char *_buffer;
   };
+
+
 
   /**
    * CircularBuffer is used when we are reading data from the modem and parsing for responses

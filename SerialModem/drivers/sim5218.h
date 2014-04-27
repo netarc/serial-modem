@@ -23,15 +23,15 @@ public:
   ////////////////////////////////////////////////////////////////////////////////
 
   virtual bool setAPN(const char *apn) {
-    return SerialModem.sendBasicCommand(cgb_sprintf(PROGMEM_STR("AT+CGSOCKCONT=1,\"IP\",\"%s\""), apn)) == Modem::SUCCESS;
+    return SerialModem.sendBasicCommand(cgb_sprintf(PMEM_STR("AT+CGSOCKCONT=1,\"IP\",\"%s\""), apn)) == Modem::SUCCESS;
   }
 
   virtual bool gpsEnable() {
-    return SerialModem.sendBasicCommand(cgb_sprintf(PROGMEM_STR("AT+CGPS=1,2"))) == Modem::SUCCESS;
+    return SerialModem.sendBasicCommand(cgb_sprintf(PMEM_STR("AT+CGPS=1,2"))) == Modem::SUCCESS;
   }
 
   virtual bool gpsSetServer(char *server, uint16_t port) {
-    return SerialModem.sendBasicCommand(cgb_sprintf(PROGMEM_STR("AT+CGPSURL=\"%s:%d\""), server, port)) == Modem::SUCCESS;
+    return SerialModem.sendBasicCommand(cgb_sprintf(PMEM_STR("AT+CGPSURL=\"%s:%d\""), server, port)) == Modem::SUCCESS;
   }
 
   virtual bool connectData() {
@@ -46,10 +46,10 @@ public:
     if (!_connectedData || _connectedSocket)
       return false;
 
-    if (SerialModem.sendBasicCommand(cgb_sprintf(PROGMEM_STR("AT+NETOPEN=\"TCP\",%d"), port), 30000) != Modem::SUCCESS)
+    if (SerialModem.sendBasicCommand(cgb_sprintf(PMEM_STR("AT+NETOPEN=\"TCP\",%d"), port), 30000) != Modem::SUCCESS)
       return false;
-    if (SerialModem.sendBasicCommand(cgb_sprintf(PROGMEM_STR("AT+TCPCONNECT=\"%s\",%d"), address, port), 30000) != Modem::SUCCESS) {
-      SerialModem.sendBasicCommand(PROGMEM_STR("AT+NETCLOSE"), 30000) == Modem::SUCCESS;
+    if (SerialModem.sendBasicCommand(cgb_sprintf(PMEM_STR("AT+TCPCONNECT=\"%s\",%d"), address, port), 30000) != Modem::SUCCESS) {
+      SerialModem.sendBasicCommand(PMEM_STR("AT+NETCLOSE"), 30000) == Modem::SUCCESS;
       return false;
     }
     return _connectedSocket = true;
@@ -59,7 +59,7 @@ public:
     if (!_connectedSocket)
       return false;
     writeBufferToSocket(true);
-    _connectedSocket = SerialModem.sendBasicCommand(PROGMEM_STR("AT+NETCLOSE"), 30000) != Modem::SUCCESS;
+    _connectedSocket = SerialModem.sendBasicCommand(PMEM_STR("AT+NETCLOSE"), 30000) != Modem::SUCCESS;
   }
 
   virtual int writeSocket(const uint8_t *bytes, size_t size) {
@@ -91,9 +91,9 @@ protected:
     if (_sendBufferWrite == 0)
       return false;
 
-    SerialModem.writeCommand(cgb_sprintf(PROGMEM_STR("AT+TCPWRITE=%d"), _sendBufferWrite));
+    SerialModem.writeCommand(cgb_sprintf(PMEM_STR("AT+TCPWRITE=%d"), _sendBufferWrite));
 
-    __PROGMEM_STR feedCheck = PROGMEM_STR(">");
+    PMemString feedCheck = PMEM_STR(">");
     response_check_t feedResponseCheck[] = {
       {feedCheck, false},
       {NULL, NULL}
@@ -103,8 +103,8 @@ protected:
 
     SerialModem.writeBytes((const uint8_t *)&_sendBuffer[0], _sendBufferWrite);
 
-    __PROGMEM_STR writeCheck = PROGMEM_STR("+TCPWRITE:");
-    __PROGMEM_STR _RESPONSE_ERROR = __PROGMEM_STR(RESPONSE_ERROR);
+    PMemString writeCheck = PMEM_STR("+TCPWRITE:");
+    PMemString _RESPONSE_ERROR = PMemString(PMEM_STR_REF_ARRAY(RESPONSE_ERROR));
     response_check_t writeResponseCheck[] = {
       {writeCheck, false},
       {_RESPONSE_ERROR, true},

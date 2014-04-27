@@ -35,11 +35,9 @@
 
   // Make use of PROGMEM strings
   #ifdef PGM_P
-    #define PROGMEM_RAW(str) ((PGM_P)F(str))
-    #define PROGMEM_PTR PGM_P
-    #define PROGMEM_STR(str) Modem::__PROGMEM_STR(PSTR(str))
-    #define LSTRING(str) Modem::__PROGMEM_STR(str)
-    #define LSTRING_PTR Modem::__PROGMEM_STR
+    #define PMEM_STR(str) Modem::PMemString(PMEM_STR_REF(str))
+    #define PMEM_STR_REF(string_literal) (reinterpret_cast<const __PMemStringRef *>(PSTR(string_literal)))
+    #define PMEM_STR_REF_ARRAY(pmem_char_array) (reinterpret_cast<const __PMemStringRef *>(&pmem_char_array[0]))
   #endif
 
   static int _hw_printf(const char *format, ...) {

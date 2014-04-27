@@ -20,16 +20,16 @@ public:
   ////////////////////////////////////////////////////////////////////////////////
 
   virtual bool setAPN(const char *apn) {
-    return SerialModem.sendBasicCommand(cgb_sprintf(PROGMEM_STR("AT#APNSERV=\"%s\""), apn)) == Modem::SUCCESS;
-    // return SerialModem.sendBasicCommand(cgb_sprintf(PROGMEM_STR("AT+CGDCONT=1,\"IP\",\"%s\""), apn)) == Modem::SUCCESS;
+    return SerialModem.sendBasicCommand(cgb_sprintf(PMEM_STR("AT#APNSERV=\"%s\""), apn)) == Modem::SUCCESS;
+    // return SerialModem.sendBasicCommand(cgb_sprintf(PMEM_STR("AT+CGDCONT=1,\"IP\",\"%s\""), apn)) == Modem::SUCCESS;
   }
 
   virtual bool gpsEnable() {
-    return SerialModem.sendBasicCommand(PROGMEM_STR("AT+GPSSLSR=1,1")) == Modem::SUCCESS;
+    return SerialModem.sendBasicCommand(PMEM_STR("AT+GPSSLSR=1,1")) == Modem::SUCCESS;
   }
 
   virtual bool gpsSetServer(char *server, uint16_t port) {
-    return SerialModem.sendBasicCommand(cgb_sprintf(PROGMEM_STR("AT+LCSSLP=1,\"%s\",%d"), server, port)) == Modem::SUCCESS;
+    return SerialModem.sendBasicCommand(cgb_sprintf(PMEM_STR("AT+LCSSLP=1,\"%s\",%d"), server, port)) == Modem::SUCCESS;
   }
 
   virtual bool connectData() {
@@ -41,19 +41,19 @@ public:
       return true;
 
     char *response;
-    SerialModem.sendBasicCommand(PROGMEM_STR("AT#GPRSMODE=1"));
-    // response = SerialModem.sendCommand(PROGMEM_STR("AT#VSTATE"), 500, ESC_CR, PROGMEM_STR("STATE:"));
+    SerialModem.sendBasicCommand(PMEM_STR("AT#GPRSMODE=1"));
+    // response = SerialModem.sendCommand(PMEM_STR("AT#VSTATE"), 500, ESC_CR, PMEM_STR("STATE:"));
     if (!strcasestr(response, "CONNECTED")) {
-      __PROGMEM_STR checkResponse = PROGMEM_STR("Ok_Info_GprsActivation");
-      __PROGMEM_STR _RESPONSE_OK = __PROGMEM_STR(RESPONSE_OK);
-      __PROGMEM_STR _RESPONSE_ERROR = __PROGMEM_STR(RESPONSE_ERROR);
+      PMemString checkResponse = PMEM_STR("Ok_Info_GprsActivation");
+      PMemString _RESPONSE_OK = PMemString(PMEM_STR_REF_ARRAY(RESPONSE_OK));
+      PMemString _RESPONSE_ERROR = PMemString(PMEM_STR_REF_ARRAY(RESPONSE_ERROR));
       response_check_t responseCheck[] = {
         {_RESPONSE_OK, true},
         {_RESPONSE_ERROR, true},
         {checkResponse, true},
         {NULL, NULL}
       };
-      response = SerialModem.sendCommand(PROGMEM_STR("AT#CONNECTIONSTART"), responseCheck, 30000, ESC_CR);
+      response = SerialModem.sendCommand(PMEM_STR("AT#CONNECTIONSTART"), responseCheck, 30000, ESC_CR);
       _connectedData = !!strstr(response, checkResponse);
     }
 
@@ -64,21 +64,21 @@ public:
     if (!_connectedData || _connectedSocket)
       return false;
 
-    if (SerialModem.sendBasicCommand(PROGMEM_STR("AT#DLEMODE=1,1")) != Modem::SUCCESS ||
-        SerialModem.sendBasicCommand(cgb_sprintf(PROGMEM_STR("AT#TCPPORT=1,%d"), port)) != Modem::SUCCESS ||
-        SerialModem.sendBasicCommand(cgb_sprintf(PROGMEM_STR("AT#TCPSERV=1,\"%s\""), address)) != Modem::SUCCESS)
+    if (SerialModem.sendBasicCommand(PMEM_STR("AT#DLEMODE=1,1")) != Modem::SUCCESS ||
+        SerialModem.sendBasicCommand(cgb_sprintf(PMEM_STR("AT#TCPPORT=1,%d"), port)) != Modem::SUCCESS ||
+        SerialModem.sendBasicCommand(cgb_sprintf(PMEM_STR("AT#TCPSERV=1,\"%s\""), address)) != Modem::SUCCESS)
       return false;
 
-    __PROGMEM_STR checkResponse = PROGMEM_STR("Ok_Info_WaitingForData");
-    __PROGMEM_STR _RESPONSE_OK = __PROGMEM_STR(RESPONSE_OK);
-    __PROGMEM_STR _RESPONSE_ERROR = __PROGMEM_STR(RESPONSE_ERROR);
+    PMemString checkResponse = PMEM_STR("Ok_Info_WaitingForData");
+    PMemString _RESPONSE_OK = PMemString(PMEM_STR_REF_ARRAY(RESPONSE_OK));
+    PMemString _RESPONSE_ERROR = PMemString(PMEM_STR_REF_ARRAY(RESPONSE_ERROR));
     response_check_t responseCheck[] = {
       {_RESPONSE_OK, true},
       {_RESPONSE_ERROR, true},
       {checkResponse, true},
       {NULL, NULL}
     };
-    char *response = SerialModem.sendCommand(PROGMEM_STR("AT#OTCP=1"), responseCheck, 10000);
+    char *response = SerialModem.sendCommand(PMEM_STR("AT#OTCP=1"), responseCheck, 10000);
     _connectedSocket = !!response && !!strcasestr(response, checkResponse);
     return _connectedSocket;
   }
@@ -112,7 +112,7 @@ public:
   }
 
   // Disconnect
-  // SerialModem.sendBasicCommand(PROGMEM_STR("AT#CONNECTIONSTOP"), 10000)
+  // SerialModem.sendBasicCommand(PMEM_STR("AT#CONNECTIONSTOP"), 10000)
 };
 
 #define DRIVER_MTSMC_H5 (new DriverMTSMC_H5())
