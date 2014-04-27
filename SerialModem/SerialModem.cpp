@@ -111,15 +111,7 @@ uint8_t SerialModemClass::sendBasicCommand(const char *cmd, uint32_t timeout, ch
   if (!assert_driver())
     return ERROR;
 
-  writeCommand(cmd, esc);
-
-  sm_response_check_t basicResponseCheck[] = {
-    {__PROGMEM_STR(RESPONSE_OK), true},
-    {__PROGMEM_STR(RESPONSE_ERROR), true},
-    {NULL, NULL}
-  };
-  char *response = getResponse(basicResponseCheck, timeout);
-  return parseBasicResponse(response);
+  return parseBasicResponse(sendCommand(cmd, NULL, timeout, esc));
 }
 
 char * SerialModemClass::sendCommand(const char *cmd, sm_response_check_t *responseChecks, uint32_t timeout, char esc) {
