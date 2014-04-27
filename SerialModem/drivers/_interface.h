@@ -40,6 +40,7 @@ public:
   virtual bool openSocketTCP(const char *address, uint16_t port) = 0;
   virtual bool closeSocket() = 0;
   virtual int writeSocket(const uint8_t *bytes, size_t size) = 0;
+  virtual void onSocketRead() = 0;
   // Establish network voice connection
   virtual bool connectVoice() = 0;
 

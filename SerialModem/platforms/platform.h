@@ -19,6 +19,8 @@
 #define PROGMEM_RAW(str) str
 #define PROGMEM_PTR void *
 #define PROGMEM_STR(str) str
+#define LSTRING(str) str
+#define LSTRING_PTR char *
 
 #include "platforms/_arduino.h"
 

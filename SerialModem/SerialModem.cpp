@@ -1,14 +1,17 @@
 #include "SerialModem.h"
 #include "platforms/platform.h"
 
-using namespace Modem;
+// using namespace Modem;
 
 SerialModemClass SerialModem;
 // The CircularBuffer is created with a reference to the shared buffer so compile
 // time has an accurate SRAM usage calculation vs allocating it at run-time
 char g_sharedBuffer[SERIAL_MODEM_SHARED_BUFFER];
-CircularBuffer *g_circularBuffer = new CircularBuffer(g_sharedBuffer, SERIAL_MODEM_SHARED_BUFFER);
+CircularBuffer *Modem::g_circularBuffer = new CircularBuffer(g_sharedBuffer, SERIAL_MODEM_SHARED_BUFFER);
 
+
+char PROGMEM Modem::RESPONSE_OK[]     = {"OK"};
+char PROGMEM Modem::RESPONSE_ERROR[]  = {"ERROR"};
 
 SerialModemClass::SerialModemClass() : _driver(NULL),
                                        _sim_pin(NULL),
@@ -105,15 +108,36 @@ size_t SerialModemClass::writeBytes(const uint8_t *bytes, size_t size) {
 }
 
 uint8_t SerialModemClass::sendBasicCommand(const char *cmd, uint32_t timeout, char esc) {
-  return parseBasicResponse(sendCommand(cmd, timeout, esc));
+  if (!assert_driver())
+    return ERROR;
+
+  writeCommand(cmd, esc);
+
+  sm_response_check_t basicResponseCheck[] = {
+    {__PROGMEM_STR(RESPONSE_OK), true},
+    {__PROGMEM_STR(RESPONSE_ERROR), true},
+    {NULL, NULL}
+  };
+  char *response = getResponse(basicResponseCheck, timeout);
+  return parseBasicResponse(response);
 }
 
-char * SerialModemClass::sendCommand(const char *cmd, uint32_t timeout, char esc, char *responseCheck) {
+char * SerialModemClass::sendCommand(const char *cmd, sm_response_check_t *responseChecks, uint32_t timeout, char esc) {
   if (!assert_driver())
     return NULL;
 
   writeCommand(cmd, esc);
-  return getResponse(timeout, responseCheck);
+  if (responseChecks == NULL) {
+    sm_response_check_t basicResponseCheck[] = {
+      {__PROGMEM_STR(RESPONSE_OK), true},
+      {__PROGMEM_STR(RESPONSE_ERROR), true},
+      {NULL, NULL}
+    };
+    return getResponse(basicResponseCheck, timeout);
+  }
+  else {
+    return getResponse(responseChecks, timeout);
+  }
 }
 
 void SerialModemClass::writeCommand(const char *cmd, char esc) {
@@ -129,7 +153,7 @@ void SerialModemClass::writeCommand(const char *cmd, char esc) {
     _hardware_serial->write(esc);
 }
 
-char * SerialModemClass::getResponse(uint32_t timeout, char *responseCheck) {
+char * SerialModemClass::getResponse(sm_response_check_t *responseChecks, uint32_t timeout) {
   g_circularBuffer->resetLeft();
 
   bool started=false;
@@ -151,10 +175,13 @@ char * SerialModemClass::getResponse(uint32_t timeout, char *responseCheck) {
     }
 
     if (!started) {
-      if ( (g_circularBuffer->substring("OK", ESC_CR)) ||
-           (g_circularBuffer->substring("ERROR", ESC_CR)) ||
-           (responseCheck && g_circularBuffer->substring(responseCheck, ESC_CR)) )
-        started = true;
+      for (sm_response_check_t *r=responseChecks; (r != NULL && (void *)r->name != NULL); r++) {
+        if (g_circularBuffer->substring(r->name,
+                                        r->escape ? ESC_CR : 0)) {
+          started = true;
+          break;
+        }
+      }
     }
     else if (previousRead == bytesRead) {
       break;
@@ -172,9 +199,9 @@ char * SerialModemClass::getResponse(uint32_t timeout, char *responseCheck) {
 uint8_t SerialModemClass::parseBasicResponse(char *response) {
   if (!response)
     return Modem::NO_RESPONSE;
-  else if (strcasestr(response, "OK"))
+  else if (strcasestr(response, __PROGMEM_STR(RESPONSE_OK)))
     return Modem::SUCCESS;
-  else if (strcasestr(response, "ERROR"))
+  else if (strcasestr(response, __PROGMEM_STR(RESPONSE_ERROR)))
     return Modem::ERROR;
   else
     return Modem::FAILURE;

@@ -9,7 +9,7 @@
 #define MIN(a,b) ({ __typeof__ (a) _a = (a); __typeof__ (b) _b = (b); _a < _b ? _a : _b; })
 #endif
 
-namespace Modem {
+// namespace Modem {
   static const int SUCCESS = 1;
   static const int NO_RESPONSE = 0;
   static const int ERROR = -1;
@@ -59,8 +59,8 @@ namespace Modem {
     char *_ptrStart;
     char *_ptrEnd;
   };
-}
+// }
 
-extern Modem::CircularBuffer *g_circularBuffer;
+extern CircularBuffer *g_circularBuffer;
 
 #endif

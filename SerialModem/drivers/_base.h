@@ -59,7 +59,7 @@ public:
 
     char *response = SerialModem.sendCommand(PROGMEM_STR("AT+CREG?"));
 
-    if (!response || !strstr(response, PROGMEM_STR("OK")))
+    if (!response || !strstr(response, __PROGMEM_STR(RESPONSE_OK)))
       return NETWORK_STATUS_UNKNOWN;
 
     char *r = strstr(response, PROGMEM_STR("+CREG:"));
@@ -80,6 +80,8 @@ public:
   virtual bool setSIMPin(const char *pin) {
     return SerialModem.sendBasicCommand(cgb_sprintf(PROGMEM_STR("AT+CPIN=%s"), pin)) == Modem::SUCCESS;
   }
+
+  virtual void onSocketRead() {}
 
 protected:
   bool _connectedSocket;

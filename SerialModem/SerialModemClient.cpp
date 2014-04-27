@@ -30,18 +30,22 @@ size_t SerialModemClient::write(const uint8_t *bytes, size_t size) {
 }
 
 int SerialModemClient::available() {
+  SerialModem.driver()->onSocketRead();
   return SerialModem._hardware_serial->available();
 }
 
 int SerialModemClient::read() {
+  SerialModem.driver()->onSocketRead();
   return SerialModem._hardware_serial->read();
 }
 
 int SerialModemClient::peek() {
+  SerialModem.driver()->onSocketRead();
   return SerialModem._hardware_serial->peek();
 }
 
 void SerialModemClient::flush() {
+  SerialModem.driver()->onSocketRead();
   return SerialModem._hardware_serial->flush();
 }
 

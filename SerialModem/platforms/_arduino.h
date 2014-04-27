@@ -38,6 +38,8 @@
     #define PROGMEM_RAW(str) ((PGM_P)F(str))
     #define PROGMEM_PTR PGM_P
     #define PROGMEM_STR(str) Modem::__PROGMEM_STR(PROGMEM_RAW(str))
+    #define LSTRING(str) Modem::__PROGMEM_STR(str)
+    #define LSTRING_PTR Modem::__PROGMEM_STR
   #endif
 
   static int _hw_printf(const char *format, ...) {

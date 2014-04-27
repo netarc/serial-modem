@@ -6,9 +6,15 @@
 
 using namespace Modem;
 
+#define SERIAL_MODEM_SIM5218_SOCKET_BUFFER 128
+
+// static char PROGMEM setAPN[]  = {"AT+CGSOCKCONT"};
+
 class DriverSIM5218 : public BaseDriver {
 public:
-  DriverSIM5218() {}
+  DriverSIM5218() {
+    _sendBufferWrite = 0;
+  }
 
   ////////////////////////////////////////////////////////////////////////////////
   // Hardware
@@ -54,25 +60,63 @@ public:
   virtual bool closeSocket() {
     if (!_connectedSocket)
       return false;
-    _connectedSocket = SerialModem.sendBasicCommand(PROGMEM_STR("AT+NETCLOSE"), 30000) == Modem::SUCCESS;
+    writeBufferToSocket(true);
+    _connectedSocket = SerialModem.sendBasicCommand(PROGMEM_STR("AT+NETCLOSE"), 30000) != Modem::SUCCESS;
   }
 
   virtual int writeSocket(const uint8_t *bytes, size_t size) {
     if (!_connectedData || !_connectedSocket)
       return 0;
 
+    size_t written=0;
+    while (written++ < size) {
+      _sendBuffer[_sendBufferWrite++] = *(bytes++);
+      if (_sendBufferWrite >= SERIAL_MODEM_SIM5218_SOCKET_BUFFER) {
+        if (!writeBufferToSocket())
+          return written;
+      }
+    }
+    return written;
+  }
 
-    SerialModem.writeCommand(cgb_sprintf(PROGMEM_STR("AT+TCPWRITE=%d"), size));
-    SerialModem._hardware_serial->write(ESC_CR);
-    if (!SerialModem.getResponse(30000, ">"))
-      return 0;
-    SerialModem.writeBytes(bytes, size);
-    return SerialModem.parseBasicResponse(SerialModem.getResponse(30000)) == Modem::SUCCESS ? size : 0;
+  virtual void onSocketRead() {
+    writeBufferToSocket();
   }
 
   virtual bool connectVoice() {
     return false;
   }
+
+protected:
+
+  bool writeBufferToSocket(bool forceClear=false) {
+    if (_sendBufferWrite == 0)
+      return false;
+
+    SerialModem.writeCommand(cgb_sprintf(PROGMEM_STR("AT+TCPWRITE=%d"), _sendBufferWrite));
+
+    sm_response_check_t feedCheck[] = {
+      {PROGMEM_STR(">"), false},
+      {NULL, NULL}
+    };
+    if (!SerialModem.getResponse(feedCheck, 30000))
+      return false;
+
+    SerialModem.writeBytes((const uint8_t *)&_sendBuffer[0], _sendBufferWrite);
+
+    sm_response_check_t check[] = {
+      {PROGMEM_STR("+TCPWRITE:"), false},
+      {__PROGMEM_STR(RESPONSE_ERROR), true},
+      {NULL, NULL}
+    };
+    if (SerialModem.parseBasicResponse(SerialModem.getResponse(check, 30000)) == Modem::SUCCESS ||
+        forceClear)
+      _sendBufferWrite = 0;
+    return _sendBufferWrite == 0;
+  }
+
+  char _sendBuffer[SERIAL_MODEM_SIM5218_SOCKET_BUFFER];
+  size_t _sendBufferWrite;
 };
 
 #define DRIVER_SIM5218 (new DriverSIM5218())

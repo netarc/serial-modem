@@ -45,8 +45,15 @@ public:
     SerialModem.sendBasicCommand(PROGMEM_STR("AT#GPRSMODE=1"));
     // response = SerialModem.sendCommand(PROGMEM_STR("AT#VSTATE"), 500, ESC_CR, PROGMEM_STR("STATE:"));
     if (!strcasestr(response, "CONNECTED")) {
-      response = SerialModem.sendCommand(PROGMEM_STR("AT#CONNECTIONSTART"), 30000, ESC_CR, PROGMEM_STR("Ok_Info_GprsActivation"));
-      _connectedData = !!strstr(response, PROGMEM_STR("Ok_Info_GprsActivation"));
+      __PROGMEM_STR checkResponse = PROGMEM_STR("Ok_Info_GprsActivation");
+      sm_response_check_t responseCheck[] = {
+        {__PROGMEM_STR(RESPONSE_OK), true},
+        {__PROGMEM_STR(RESPONSE_ERROR), true},
+        {checkResponse, true},
+        {NULL, NULL}
+      };
+      response = SerialModem.sendCommand(PROGMEM_STR("AT#CONNECTIONSTART"), responseCheck, 30000, ESC_CR);
+      _connectedData = !!strstr(response, checkResponse);
     }
 
     return _connectedData;
@@ -62,7 +69,13 @@ public:
       return false;
 
     __PROGMEM_STR checkResponse = PROGMEM_STR("Ok_Info_WaitingForData");
-    char *response = SerialModem.sendCommand(PROGMEM_STR("AT#OTCP=1"), 10000, ESC_CR, checkResponse);
+    sm_response_check_t responseCheck[] = {
+      {__PROGMEM_STR(RESPONSE_OK), true},
+      {__PROGMEM_STR(RESPONSE_ERROR), true},
+      {checkResponse, true},
+      {NULL, NULL}
+    };
+    char *response = SerialModem.sendCommand(PROGMEM_STR("AT#OTCP=1"), responseCheck, 10000);
     _connectedSocket = !!response && !!strcasestr(response, checkResponse);
     return _connectedSocket;
   }

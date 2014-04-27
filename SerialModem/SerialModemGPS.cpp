@@ -23,12 +23,12 @@ void SerialModemGPS::requestPosition() {
 
 
   // if (SerialModem.sendBasicCommand("AT+CGPS=1,2") == Modem::SUCCESS) {
-    char *response = SerialModem.sendCommand("AT+CGPSINFO", 1000);
-    char *gpsInfo = strstr(response, "+CGPSINFO:");
-    DLog(" * Found GPS Info:\n");
-    while (*gpsInfo++ != 13)
-      DLog("%c", *gpsInfo);
-    DLog("\n");
+    // char *response = SerialModem.sendCommand("AT+CGPSINFO", 1000);
+    // char *gpsInfo = strstr(response, "+CGPSINFO:");
+    // DLog(" * Found GPS Info:\n");
+    // while (*gpsInfo++ != 13)
+    //   DLog("%c", *gpsInfo);
+    // DLog("\n");
 
     // SerialModem.sendBasicCommand("AT+CGPS=0") == Modem::SUCCESS;
   // }
