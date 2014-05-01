@@ -1,7 +1,7 @@
 #ifndef _SERIAL_MODEM__H_
 #define _SERIAL_MODEM__H_
 
-// #define DEBUG
+#define DEBUG
 
 #include <inttypes.h>
 #include "platforms/platform.h"

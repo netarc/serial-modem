@@ -32,13 +32,16 @@
   class PMemString {
   public:
     PMemString(const char *str);
+    #ifdef USING_PROGMEM
     explicit PMemString(const __PMemStringRef *ptr);
+    #endif
     ~PMemString(void);
 
     operator const char*() { return _buffer; }
     operator char*() { return _buffer; }
 
   protected:
+    bool _allocated;
     char *_buffer;
   };
 

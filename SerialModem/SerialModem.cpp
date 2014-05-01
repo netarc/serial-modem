@@ -65,8 +65,7 @@ bool SerialModemClass::ready() {
   if (!assert_driver())
     return false;
 
-  if ( (!_powered_on && (_powered_on = _driver->attention())) ||
-       (_powered_on = _driver->powerOn()) ) {
+  if ( (!_powered_on && (_powered_on = _driver->powerOn())) ) {
     onPowerOn();
     return true;
   }

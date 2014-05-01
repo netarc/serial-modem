@@ -16,6 +16,7 @@
 #define SMSerialInterfaceClass void *
 
 // PROGMEM strings support
+#define PROGMEM
 #define PMEM_STR(str) str
 #define PMEM_STR_REF(string_literal) string_literal
 #define PMEM_STR_REF_ARRAY(pmem_char_array) (&pmem_char_array[0])

@@ -3,12 +3,15 @@
 namespace Modem {
   PMemString::PMemString(const char *str) {
     _buffer = (char *)str;
+    _allocated = false;
   }
 
+#ifdef USING_PROGMEM
   PMemString::PMemString(const __PMemStringRef *ptr) {
     if (ptr == NULL)
       return;
 
+    _allocated = true;
     #ifdef PGM_P
       _buffer = (char *)malloc(strlen_P(reinterpret_cast<const prog_char *>(ptr)) + 1);
       strcpy_P(_buffer, reinterpret_cast<const prog_char *>(ptr));
@@ -16,9 +19,10 @@ namespace Modem {
       #error "unhandled PROGMEM_PTR"
     #endif
   }
+#endif
 
   PMemString::~PMemString() {
-    if (_buffer)
+    if (_allocated && _buffer)
       free(_buffer);
   }
 

@@ -14,20 +14,16 @@ public:
   ////////////////////////////////////////////////////////////////////////////////
 
   virtual bool powerOn() {
-    if (_hardware_config.pinPower == -1)
-      return true;
+    if (_hardware_config.pinPower == 255)
+      return attention();
 
     hw_setPinMode(_hardware_config.pinPower, hw_OUTPUT);
     hw_digitalWrite(_hardware_config.pinPower, hw_HIGH);
     plt_delay(200);
     hw_digitalWrite(_hardware_config.pinPower, hw_LOW);
     plt_delay(3000);
-    for (int i=0; i<10; i++) {
-      plt_delay(750);
-      if (attention())
-        return true;
-    }
-    return false;
+
+    return attention();
   }
 
   virtual bool powerOff() {
