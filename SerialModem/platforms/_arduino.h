@@ -16,6 +16,7 @@
   #include "Energia.h"
   #include <stdarg.h>
   #define ARDUINO_PLATFORM
+  char  *_EXFUN(strcasestr,(const char *, const char *));
 #elif defined(CORE_TEENSY) // [untested] Teensy specific
   #include "WProgram.h"
   #define ARDUINO_PLATFORM
