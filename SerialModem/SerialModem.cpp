@@ -8,8 +8,8 @@ SerialModemClass SerialModem;
 char g_sharedBuffer[SERIAL_MODEM_SHARED_BUFFER];
 CircularBuffer *Modem::g_circularBuffer = new CircularBuffer(g_sharedBuffer, SERIAL_MODEM_SHARED_BUFFER);
 
-char PROGMEM Modem::RESPONSE_OK[]     = {"OK"};
-char PROGMEM Modem::RESPONSE_ERROR[]  = {"ERROR"};
+const char PROGMEM Modem::RESPONSE_OK[]     = {"OK"};
+const char PROGMEM Modem::RESPONSE_ERROR[]  = {"ERROR"};
 
 SerialModemClass::SerialModemClass() : _driver(NULL),
                                        _sim_pin(NULL),

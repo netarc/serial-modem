@@ -91,8 +91,8 @@ namespace Modem {
     char *_sim_pin;
   };
 
-  extern char PROGMEM RESPONSE_OK[];
-  extern char PROGMEM RESPONSE_ERROR[];
+  extern const char PROGMEM RESPONSE_OK[];
+  extern const char PROGMEM RESPONSE_ERROR[];
 }
 
 extern Modem::SerialModemClass SerialModem;

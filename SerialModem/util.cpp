@@ -13,8 +13,8 @@ namespace Modem {
 
     _allocated = true;
     #ifdef PGM_P
-      _buffer = (char *)malloc(strlen_P(reinterpret_cast<const prog_char *>(ptr)) + 1);
-      strcpy_P(_buffer, reinterpret_cast<const prog_char *>(ptr));
+      _buffer = (char *)malloc(strlen_P(reinterpret_cast<const char *>(ptr)) + 1);
+      strcpy_P(_buffer, reinterpret_cast<const char *>(ptr));
     #else
       #error "unhandled PROGMEM_PTR"
     #endif
